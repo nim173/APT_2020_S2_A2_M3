@@ -32,6 +32,6 @@ void show_menu() {
    cout << "----" << endl;
    cout << "1. New Game" << endl
         << "2. Load Game" << endl
-        << "3. Credits (Show student information)"
+        << "3. Credits (Show student information)" << endl
         << "4. Quit" << endl;
 }
