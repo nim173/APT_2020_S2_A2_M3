@@ -4,6 +4,7 @@
 
 using std::cout;
 using std::endl;
+using std::cin;
 using std::string;
 
 void show_credits();
@@ -17,8 +18,8 @@ int main(void)
    {
       int input=0;
       show_menu();
-      std::cout << "> ";
-      std::cin >> input;
+      cout << "> " << endl;
+      cin >> input;
       if (input == 3)
       {
          show_credits();
