@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <limits>
 
 using std::cout;
 using std::endl;
@@ -14,16 +15,31 @@ int main(void) {
    cout << endl << "Welcome to Azul" << endl;
    cout << "---------------" << endl;
    bool loop = true;
+   int input = 0;
    do {
-      int input=0;
       show_menu();
       cout << "> ";
-      cin >> input;
-      cout << endl;
-      if (input == 3) {
-         show_credits();
-      }
-      else if (input == 4) {
+      // if EOF character is not inputted, continue the program
+      if (cin >> input) {
+         if (input == 1) {
+            
+         } else if (input == 2) {
+
+         } else if (input == 3) {
+            cout << endl;
+            show_credits();
+         } else if (input == 4) {
+            cout << endl;
+            loop = false;
+         } else if (!cin.eof()){
+            cout << "Invalid input" << endl;
+            // clear bad input flag
+            std::cin.clear(); 
+            // ignores the last input
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+         }
+      } else {
+         cout << endl << "Goodbye" << endl << endl;
          loop = false;
       }
    } while (loop);
