@@ -10,30 +10,26 @@ using std::string;
 void show_credits();
 void show_menu();
 
-int main(void)
-{
-
+int main(void) {
+   cout << endl << "Welcome to Azul" << endl;
+   cout << "---------------" << endl;
    bool loop = true;
-   do
-   {
+   do {
       int input=0;
       show_menu();
-      cout << "> " << endl;
+      cout << "> ";
       cin >> input;
-      if (input == 3)
-      {
+      cout << endl;
+      if (input == 3) {
          show_credits();
       }
-      else if (input == 4)
-      {
+      else if (input == 4) {
          loop = false;
       }
-
    } while (loop);
 }
 
-void show_credits()
-{
+void show_credits() {
    string line;
    std::ifstream myFile("credits.txt");
    if (myFile.is_open())
@@ -46,15 +42,11 @@ void show_credits()
    myFile.close();
 }
 
-void show_menu()
-{
-   cout << "Welcome to Azul" << endl;
-   cout << "---------------" << endl
-        << endl;
-   cout << "Menu" << endl;
+void show_menu() {
+   cout << endl << "Menu" << endl;
    cout << "----" << endl;
    cout << "1. New Game" << endl
         << "2. Load Game" << endl
         << "3. Credits (Show student information)" << endl
-        << "4. Quit" << endl;
+        << "4. Quit" << endl << endl;
 }
