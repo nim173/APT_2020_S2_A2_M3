@@ -8,5 +8,5 @@ Player::Player(string name) {
 }
 
 Player::~Player() {
-    
+
 }

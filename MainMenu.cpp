@@ -63,7 +63,12 @@ void start_new_game() {
       if (cin >> player2Name) {
          Game* newGame = new Game(player1Name, player2Name);
          // play the game
-         // ...
+         for (int i = 0; i < NO_OF_ROUNDS; ++i) {
+            // while (!newGame->roundOver()) {
+               
+            // }
+         }
+
          delete newGame;
       } // if not EOF
    } // if not EOF
