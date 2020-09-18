@@ -1,51 +1,40 @@
 #ifndef GAME
 #define GAME
 
-#include <string>
 #include <vector>
+#include <string>
 #include "Player.h"
 #include "Types.h"
 
-using std::string;
-using std::vector;
-
 class Game {
 public:
-    Game(string player1Name, string player2Name);
+    Game(); // 
+    // another constructor with tilebag as a parameter - load game - Sean
     ~Game();
 
-    void addToCentreFactory(int factory);
-
-    bool playTurn(int player, int factory, char tile, int storageRow);
-
-    // checks if all tiles are taken
-    // used in main to check end of round (or where game loop is to be run)
+    // removes the specified tile from the specified factory and returns the number of instances of the tile found
+    int removeFromFactory(int factory, char tile); // - Ryan
+    
+    // checks if all tiles (in factories) are taken
     bool roundOver();
 
-    // returns a formatted string showing the winner, final scores, and mosaics
-    string getGameResults();
+    std::string printFactories();
 
 private:
-    // We could use a player array of length 2 here, what do you guys think? - N
-    Player* players[NO_OF_PLAYERS];
-
-    // Tile bag
+    // Tile bag - 
+    // ...
 
     // an array of vectors for the the central factory + 5 factories
-    vector<char> factories;
+    std::vector<char> factories[NO_OF_FACTORIES];
 
     // Turns - we could store it here, maybe a 2D array for the 5 rounds (or store them in Player)
-    vector<string> turns;
+    std::vector<std::string> turns; 
 
     // gets initialised by the contents (mozaic format) of the file default.mozaic in constructor
     // used as reference to fill player mosaics
     char defaultMosaic[MOSAIC_DIM][MOSAIC_DIM];
 
-    // removes the specified tile from the specified factory and returns the number of instances of the tile found
-    int removeFromFactory(int factory, char tile);
-
-    // returns a formatted string 
-    string getRoundResults();
+    void addToCentreFactory(int factory); // add to the frist vector of factories array - Ryan
 };
 
 #endif // GAME

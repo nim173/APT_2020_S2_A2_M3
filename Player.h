@@ -1,29 +1,30 @@
 #ifndef PLAYER
 #define PLAYER
 
-#include <string>
 #include <vector>
+#include <string>
 #include "Types.h"
-
-using std::string;
-using std::vector;
 
 class Player {
 public:
-    Player(string name);
+    Player(std::string name);
     ~Player();
 
+    std::string getName();
+    int getPoints();
+    std::string printPlayerBoard(); // Nim
     bool addToStorageRow(int row, char tile);
     void addBrokenTiles(char tile);
     void addToMosaic(int row, int col, char tile);
+    
 private:
-    string name;
+    std::string name;
     int points;
 
     // Player Mosaic
-    char* storageRow[MOSAIC_DIM];
+    std::vector<char> storageRow[MOSAIC_DIM];
     char mosaic[MOSAIC_DIM][MOSAIC_DIM];
-    vector<char> brokenTiles;
+    std::vector<char> brokenTiles;
 };
 
 #endif // Player
