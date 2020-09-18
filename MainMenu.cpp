@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "Game.h"
+#include "GameHandler.h"
 
 using std::cout;
 using std::endl;
@@ -14,6 +14,8 @@ void load_game();
 void show_credits();
 
 int main(void) {
+   GameHandler* gameHandler = new GameHandler();
+
    cout << endl << "Welcome to Azul" << endl;
    cout << "---------------" << endl;
    bool loop = true;
@@ -23,9 +25,9 @@ int main(void) {
       cout << "> ";
       if (cin >> input) {
          if (input == "1") {
-            start_new_game();
+            gameHandler->playNewGame();
          } else if (input == "2") {
-            load_game();
+            gameHandler->loadGame();
          } else if (input == "3") {
             show_credits();
          } else if (input == "4") {
@@ -40,6 +42,8 @@ int main(void) {
          loop = false;
       } // if EOF
    } while (loop);
+
+   delete gameHandler;
 }
 
 void show_menu() {
@@ -49,33 +53,6 @@ void show_menu() {
         << "2. Load Game" << endl
         << "3. Credits (Show student information)" << endl
         << "4. Quit" << endl << endl;
-}
-
-void start_new_game() {
-   cout << "Starting a New Game" << endl << endl;
-   cout << "Enter a name for player 1" << endl;
-   string player1Name;
-   cout << "> ";
-   if (cin >> player1Name) {
-      cout << endl << "Enter a name for player 2" << endl;
-      string player2Name;
-      cout << "> ";
-      if (cin >> player2Name) {
-         Game* newGame = new Game(player1Name, player2Name);
-         // play the game
-         for (int i = 0; i < NO_OF_ROUNDS; ++i) {
-            // while (!newGame->roundOver()) {
-               
-            // }
-         }
-
-         delete newGame;
-      } // if not EOF
-   } // if not EOF
-}
-
-void load_game() {
-   
 }
 
 void show_credits() {

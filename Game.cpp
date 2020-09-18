@@ -1,23 +1,35 @@
-#include <string>
+#include <vector>
 #include "Game.h"
+#include "Types.h"
 
-using std::string;
-
-Game::Game(string player1Name, string player2Name) {
-    players[0] = new Player(player1Name);
-    players[1] = new Player(player2Name);
+Game::Game() {
+    
 }
 
 Game::~Game() {
-    // delete player1;
-    // delete player2;
+    // delete factories - TODO
 }
 
-bool Game::playTurn(int player, int factory, char tile, int storageRow) {
-    // remove tile(s) from relevant factory, obtain number of tiles removed - Game.removeFromFactory(int factory, char tile)
-    // add tile(s) to player storage row - Player.addToStorageRow(int row, char tile) & Player.addBrokenTiles(char tile)
+bool Game::roundOver() {
+    bool result = false;
+    for (int i = 0; i < NO_OF_FACTORIES && !result; ++i) {
+        if (!factories[i].empty()) {
+            result = true;
+        }
+    }
+    return result;
+}
 
-    // handle 'f' tile 
-    // if first element of centre factory is f, add f to broken tile vector of player - Player.addBrokenTiles('f')
-    return false;
+std::string Game::printFactories() {
+    std::string result;
+    for (int i = 0; i < NO_OF_FACTORIES; ++i) {
+        result += std::to_string(i) + ": ";
+
+        for (unsigned int j = 0; j < factories[i].size(); ++j) {
+            result += factories[i].at(j) + " ";
+        }
+
+        result += "\n";
+    }
+    return result;
 }
