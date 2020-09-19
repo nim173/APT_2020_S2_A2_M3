@@ -6,7 +6,7 @@
 #include <fstream>
 #include <limits>
 
-Node::Node(int value, Node *next) : value(value), next(next)
+Node::Node(char value, Node *next) : value(value), next(next)
 {
 }
 
@@ -26,9 +26,9 @@ LinkedList::~LinkedList()
    clear();
 }
 
-unsigned int LinkedList::size() const
+ unsigned char LinkedList::size() const
 {
-   unsigned int count = 0;
+   int count = 0;
    Node *current = head;
    while (current != nullptr)
    {
@@ -40,7 +40,7 @@ unsigned int LinkedList::size() const
 }
 
 
-void LinkedList::addFront(int value)
+void LinkedList::addFront(char value)
 {
    Node *toAdd = new Node(value, nullptr);
    if (head == nullptr)
@@ -53,7 +53,7 @@ void LinkedList::addFront(int value)
    }
 }
 
-void LinkedList::addBack(int value)
+void LinkedList::addBack(char value)
 {
    Node *toAdd = new Node(value, nullptr);
 
@@ -93,11 +93,13 @@ void LinkedList::removeBack()
 
 }
 
-void LinkedList::removeFront()
+char LinkedList::removeFront()
 {
+   char tile = ' ';
    if (head != nullptr)
    {
       Node* toDelete = head;
+      tile = head->value;
       head = head->next;
 
       if (head==nullptr)
@@ -107,9 +109,9 @@ void LinkedList::removeFront()
       {
          head->prev = nullptr;
       }
-
       delete toDelete;
    }
+   return tile;
 }
 
 void LinkedList::clear()

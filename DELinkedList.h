@@ -3,9 +3,9 @@
 
 class Node {
 public:
-   Node(int value, Node* next);
+   Node(char value, Node* next);
 
-   int value;
+   char value;
    Node* next;
    Node* prev;
 };
@@ -19,26 +19,18 @@ public:
    /**
     * Return the current size of the Linked List.
     */
-   unsigned int size() const;
-
-   /**
-    * output: Get the value at the given index.
-    * input: Index must be >=0 and < size()
-    * Version that gives error code.
-    * 
-    */
-   bool get(const unsigned int index, int& returnValue) const;
+   unsigned  char size() const;
 
 
    /**
     * Add the value to the back of the Linked List
     */
-   void addBack(int value);
+   void addBack(char value);
 
    /**
     * Add the value to the front of the Linked List
     */
-   void addFront(int value);
+   void addFront(char value);
 
    /**
     * Remove the value at the back of the Linked List
@@ -48,7 +40,7 @@ public:
    /**
     * Remove the value at the front of the Linked List
     */
-   void removeFront();
+   char removeFront();
 
    /**
     * Removes all values from the Linked List
