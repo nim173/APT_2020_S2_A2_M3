@@ -83,3 +83,22 @@ bool Player::validateTurn(char tile, int row, string* errorMessage) {
     }
     return valid;
 }
+
+void Player::addToStorageRow(int row, char tile, int numTilesToAdd) {
+    for (int i = storageRow[row].size(); i < row && numTilesToAdd > 0; ++i) {
+        storageRow[row].push_back(tile);
+        --numTilesToAdd;
+    }
+    addToFloorLine(tile, numTilesToAdd);
+}
+
+void Player::addToFloorLine(char tile, int numTilesToAdd) {
+    while (numTilesToAdd > 0) {
+        brokenTiles.push_back(tile);
+        --numTilesToAdd;
+    }
+}
+
+void Player::addToMosaic(int row, int col, char tile) {
+    mosaic[row][col] = tile;
+}

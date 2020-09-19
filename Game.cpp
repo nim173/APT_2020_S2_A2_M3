@@ -54,9 +54,9 @@ std::string Game::printFactories() {
     return result;
 }
 
-// void Game::addToTileBag(char tile) {
-//     tilebag.addBack(tile);
-// }
+void Game::addToTileBag(char tile) {
+    tilebag.addBack(tile);
+}
 
 // char Game::removeFromTileBag() {
 //     return tilebag.removeFront();
@@ -71,4 +71,3 @@ bool Game::checkForFirstPlayerTile() {
     } 
     return result;
 }
-

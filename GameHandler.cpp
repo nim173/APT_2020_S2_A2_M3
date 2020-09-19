@@ -63,19 +63,14 @@ void GameHandler::playTurn(int playerNo, Game* game) {
     // remove tile(s) from relevant factory, obtain number of tiles removed
     // int numTilesToAdd = game->removeFromFactory(factoryNo, tile);
 
-    // add tile(s) to player storage row
-    // int numTilesToAddToTilebag = players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
-
-    // add excess tiles to tilebag if player floor line is full
-    // for (int i = 0; i < numTilesToAddToTilebag; ++i) {
-    //     game->addToTileBag(tile);
-    // }
+    // add tile(s) to player storage row (and/or floor line)
+    // players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
 
     // handle 'f' tile if specified factory is the centre factory (0)
     // if first element of centre factory is 'F', add f to floor line of player
-    // if (factoryNo == 0 && game->checkForFirstPlayerTile()) {
-    //     players[playerNo]->addToFloorLine(FIRST_PLAYER_TILE);
-    // }
+    if (factoryNo == 0 && game->checkForFirstPlayerTile()) {
+        players[playerNo]->addToFloorLine(FIRST_PLAYER_TILE, 1);
+    }
 }
 
 void GameHandler::getPlayerTurn(int* factoryNo, char* tile, int* storageRow) {

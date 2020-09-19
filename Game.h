@@ -13,7 +13,7 @@ using std::vector;
 class Game {
 public:
     // constructors - loads tilebag, and fills factories
-    Game(); // default constructor - loads default tilebag - Sean
+    Game(); // default constructor - loads default tilebag from textfile - Sean
     // another constructor with tilebag as a parameter - load game - Sean
     ~Game();
 

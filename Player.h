@@ -26,13 +26,12 @@ public:
 
     // adds the specified number of tiles to the specified storage row
     // adds excess tiles to the floor line (broken tiles)
-    // if floor line is full, returns the number of excess tiles 
-    // (so that they could be added to the back of the tilebag)
-    int addToStorageRow(int row, char tile, int numTilesToAdd);
+    void addToStorageRow(int row, char tile, int numTilesToAdd);
 
     // add broken tiles to floor line
-    void addToFloorLine(char tile);
+    void addToFloorLine(char tile, int numTilesToAdd);
 
+    // add specified tile to given position in mosaic
     void addToMosaic(int row, int col, char tile);
     
 private:
@@ -42,6 +41,9 @@ private:
     // Player Mosaic
     vector<char> storageRow[MOSAIC_DIM];
     char mosaic[MOSAIC_DIM][MOSAIC_DIM];
+
+    // the floor line would not have a max size, as box-lid is out of scope and to keep track of the FIRST_PLAYER_TILE
+    // for scoring only the first 7 tiles would be counted as per game rules
     vector<char> brokenTiles;
 };
 
