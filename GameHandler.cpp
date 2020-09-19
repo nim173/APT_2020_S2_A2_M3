@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "GameHandler.h"
 #include "Game.h"
 #include "Player.h"
@@ -48,14 +49,79 @@ bool GameHandler::playTurn(int playerNo, Game* game) {
          << "Mosaic for " + players[playerNo]->getName() << endl
          << players[playerNo]->printPlayerBoard() << endl
          << "> ";
-    // TODO - handle input
 
+    string factory;
+    string tile;
+    string storageRow;
+
+    getPlayerTurn(&factory, &tile, &storageRow);
     // remove tile(s) from relevant factory, obtain number of tiles removed - Game.removeFromFactory(int factory, char tile)
     // add tile(s) to player storage row - Player.addToStorageRow(int row, char tile) & Player.addBrokenTiles(char tile)
 
     // handle 'f' tile 
     // if first element of centre factory is f, add f to broken tile vector of player - Player.addBrokenTiles('f')
     return false;
+}
+
+void getPlayerTurn(string* factory, string* tile, string* storageRow) {
+    string maxFactoryValue = std::to_string(NO_OF_FACTORIES - 1);
+    string validTiles = VALID_TURN_TILES;
+    string maxStorageRowValue = std::to_string(MOSAIC_DIM);
+
+    string command;
+
+    bool invalidTurn = true;
+
+    while (invalidTurn) {
+        if (cin >> command) {
+            if (command == "turn") {
+                if (cin >> *factory) {
+                    if (factory->compare("0") >= 0 && factory->compare(maxFactoryValue) <= 0) {
+                        if (cin >> *tile) {
+                            if (validTiles.find(*tile) != string::npos) {
+                                if (cin >> *storageRow) {
+                                    if (storageRow->compare("1") >= 0 && storageRow->compare(maxStorageRowValue) <= 0) {
+                                        invalidTurn = false;
+                                        // cout << command << " " << *factory << " " << *tile << " " << *storageRow << endl; 
+                                    } else {
+                                        // not a valid storage row number (should be bet 1 & maxStorageRowValue)
+                                        cout << *storageRow << ": invalid storage row number, pick from 1 to " 
+                                                           << maxStorageRowValue << endl;
+                                    }
+                                } else {
+                                    // EOF
+                                }
+                            } else {
+                                // tile is not a valid tile
+                                cout << *tile + ": is not a valid tile" <<endl;
+                            }
+                        } else {
+                            // EOF
+                        }
+                        
+                    } // in range for factory
+                    else {
+                        cout << *factory << ": out of range for factory, pick from 0 to " << maxFactoryValue <<endl;
+                    } 
+                } else {
+                    // EOF
+                }
+            } else {
+                // invalid command - turn <factory> <tile-code> <storage row>
+                cout << command << ": invalid command, use the following format" << endl 
+                     << "turn <factory> <tile-code> <storage row>" << endl;
+            }
+        } else {
+            // EOF
+        }
+
+        if (invalidTurn) {
+            cout << endl << "Enter turn again" << endl
+                 << "> ";
+            cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
 }
 
 // TODO - handle players having same name
