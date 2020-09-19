@@ -20,6 +20,26 @@ bool Game::roundOver() {
     return result;
 }
 
+bool Game::validateTurn(int factoryNo, char tile, string* errorMessage) {
+    bool valid = false;
+    if (!factories[factoryNo].empty()) {
+        unsigned int i = 0;
+        while (i < factories[factoryNo].size() && !valid) {
+            if (factories[factoryNo].at(i) == tile) {
+                valid = true;
+            }
+            ++i;
+        }
+        if (!valid) {
+            *errorMessage += "No " + std::to_string(tile) + " tiles in factory" 
+                          + std::to_string(factoryNo) + "\n";
+        }
+    } else {
+        *errorMessage += "Factory " + std::to_string(factoryNo) + " is empty\n";
+    }
+    return valid;
+}
+
 std::string Game::printFactories() {
     std::string result;
     for (int i = 0; i < NO_OF_FACTORIES; ++i) {
@@ -33,3 +53,22 @@ std::string Game::printFactories() {
     }
     return result;
 }
+
+// void Game::addToTileBag(char tile) {
+//     tilebag.addBack(tile);
+// }
+
+// char Game::removeFromTileBag() {
+//     return tilebag.removeFront();
+// }
+
+bool Game::checkForFirstPlayerTile() {
+    bool result = false;
+    if (!factories[0].empty()) {
+        if (factories[0].at(0) == FIRST_PLAYER_TILE) {
+            result = true;
+        }
+    } 
+    return result;
+}
+
