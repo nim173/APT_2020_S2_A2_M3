@@ -10,8 +10,7 @@ typedef char Tile;
 #define VALID_TURN_TILES    "BURLY"
 #define EMPTY_SLOT          '.'
 #define FIRST_PLAYER_TILE   'F'
-//E represents an empty slot
-// enum Tile {R, Y, B, L, U, F, E};
+
 
 
 #endif // TYPES

@@ -1,12 +1,12 @@
-
 #include "DELinkedList.h"
+#include "Types.h"
 
 #include <exception>
 #include <iostream>
 #include <fstream>
 #include <limits>
 
-Node::Node(char value, Node *next) : value(value), next(next)
+Node::Node(Tile value, Node *next) : value(value), next(next)
 {
 }
 
@@ -26,7 +26,7 @@ LinkedList::~LinkedList()
    clear();
 }
 
- unsigned char LinkedList::size() const
+ Tile LinkedList::size() const
 {
    int count = 0;
    Node *current = head;
@@ -40,7 +40,7 @@ LinkedList::~LinkedList()
 }
 
 
-void LinkedList::addFront(char value)
+void LinkedList::addFront(Tile value)
 {
    Node *toAdd = new Node(value, nullptr);
    if (head == nullptr)
@@ -53,7 +53,7 @@ void LinkedList::addFront(char value)
    }
 }
 
-void LinkedList::addBack(char value)
+void LinkedList::addBack(Tile value)
 {
    Node *toAdd = new Node(value, nullptr);
 
@@ -93,9 +93,9 @@ void LinkedList::removeBack()
 
 }
 
-char LinkedList::removeFront()
+Tile LinkedList::removeFront()
 {
-   char tile = ' ';
+   Tile tile = ' ';
    if (head != nullptr)
    {
       Node* toDelete = head;

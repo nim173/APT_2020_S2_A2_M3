@@ -1,36 +1,38 @@
 #ifndef LINKED_LIST_H
-#define LINKED_LIST_H 
+#define LINKED_LIST_H
+#include "Types.h"
 
-class Node {
+class Node
+{
 public:
-   Node(char value, Node* next);
+   Node(Tile value, Node *next);
 
-   char value;
-   Node* next;
-   Node* prev;
+   Tile value;
+   Node *next;
+   Node *prev;
 };
 
-class LinkedList {
+class LinkedList
+{
 public:
    LinkedList();
-   LinkedList(const LinkedList& other);
+   LinkedList(const LinkedList &other);
    ~LinkedList();
 
    /**
     * Return the current size of the Linked List.
     */
-   unsigned  char size() const;
-
+   Tile size() const;
 
    /**
     * Add the value to the back of the Linked List
     */
-   void addBack(char value);
+   void addBack(Tile value);
 
    /**
     * Add the value to the front of the Linked List
     */
-   void addFront(char value);
+   void addFront(Tile value);
 
    /**
     * Remove the value at the back of the Linked List
@@ -40,7 +42,7 @@ public:
    /**
     * Remove the value at the front of the Linked List
     */
-   char removeFront();
+   Tile removeFront();
 
    /**
     * Removes all values from the Linked List
@@ -48,9 +50,8 @@ public:
    void clear();
 
 private:
-
-   Node* head;
-   Node* tail;
+   Node *head;
+   Node *tail;
 };
 
 #endif // LINKED_LIST_H
