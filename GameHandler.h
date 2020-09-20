@@ -25,10 +25,12 @@ private:
 
     bool saveGame();
 
-    void playTurn(int playerNo, Game* game);
+    // returns false if EOF encountered while getting user input
+    bool playTurn(int playerNo, Game* game);
 
     // gets turn input and does input error checking (does not check for game rules)
-    void getPlayerTurn(int* factoryNo, char* tile, int* storageRow);
+    // returns false if EOF encountered
+    bool getPlayerTurn(int* factoryNo, char* tile, int* storageRow);
 
     bool validateTurn(int playerNo, Game* game, int factoryNo, char tile, int storageRow);
 

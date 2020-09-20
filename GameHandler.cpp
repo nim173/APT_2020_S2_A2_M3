@@ -16,22 +16,26 @@ void GameHandler::playNewGame() {
         Game* newGame = new Game();
 
         // play the game
-        for (int i = 0; i < NO_OF_ROUNDS; ++i) {
+        bool eof = false;
+        for (int i = 0; i < NO_OF_ROUNDS && !eof; ++i) {
             // TODO - player with f starts first
             cout << endl << "=== START OF ROUND ===" << endl;
-            // int j = NO_OF_PLAYERS;
-            // while (!newGame->roundOver()) {
-            //     playTurn(j % NO_OF_PLAYERS, &newGame);
-            //     ++j;
-            // }
-            cout << endl << "===  END OF ROUND  ===" << endl;
-            printRoundResults();
+            int j = NO_OF_PLAYERS;
+            while (!newGame->roundOver() && !eof) {
+                eof = playTurn(j % NO_OF_PLAYERS, newGame);
+                ++j;
+            }
+            if (!eof) {
+                cout << endl << "===  END OF ROUND  ===" << endl;
+                printRoundResults();
+            }
         }
 
-        cout << endl << "====   GAME OVER  ====" << endl;
-        // Scoring - TODO
-        // printGameResults();
-
+        if (!eof) {
+            cout << endl << "====   GAME OVER  ====" << endl;
+            // Scoring - TODO
+            // printGameResults();
+        } // EOF, handled in main menu
         delete newGame;
     } // players added successfully
     else {
@@ -43,7 +47,7 @@ bool GameHandler::loadGame() {
     return false;
 }
 
-void GameHandler::playTurn(int playerNo, Game* game) {
+bool GameHandler::playTurn(int playerNo, Game* game) {
     cout << "TURN FOR PLAYER: " << players[playerNo]->getName() << endl
          << "Factories:" << endl 
          << game->printFactories() << endl
@@ -56,24 +60,28 @@ void GameHandler::playTurn(int playerNo, Game* game) {
     char tile;
     int storageRow;
 
+    bool result = true;
     do {
-        getPlayerTurn(&factoryNo, &tile, &storageRow);
-    } while (!validateTurn(playerNo, game, factoryNo, tile, storageRow));
+        result = getPlayerTurn(&factoryNo, &tile, &storageRow);
+    } while (result && !validateTurn(playerNo, game, factoryNo, tile, storageRow));
 
-    // remove tile(s) from relevant factory, obtain number of tiles removed
-    // int numTilesToAdd = game->removeFromFactory(factoryNo, tile);
+    if (result) {
+        // remove tile(s) from relevant factory, obtain number of tiles removed
+        // int numTilesToAdd = game->removeFromFactory(factoryNo, tile);
 
-    // add tile(s) to player storage row (and/or floor line)
-    // players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
+        // add tile(s) to player storage row (and/or floor line)
+        // players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
 
-    // handle 'f' tile if specified factory is the centre factory (0)
-    // if first element of centre factory is 'F', add f to floor line of player
-    if (factoryNo == 0 && game->checkForFirstPlayerTile()) {
-        players[playerNo]->addToFloorLine(FIRST_PLAYER_TILE, 1);
-    }
+        // handle 'f' tile if specified factory is the centre factory (0)
+        // if first element of centre factory is 'F', add f to floor line of player
+        if (factoryNo == 0 && game->checkForFirstPlayerTile()) {
+            players[playerNo]->addToFloorLine(FIRST_PLAYER_TILE, 1);
+        }
+    } // not EOF
+    return result;
 }
 
-void GameHandler::getPlayerTurn(int* factoryNo, char* tile, int* storageRow) {
+bool GameHandler::getPlayerTurn(int* factoryNo, char* tile, int* storageRow) {
     string inputFactory;
     string inputTile;
     string inputStorageRow;
@@ -84,7 +92,8 @@ void GameHandler::getPlayerTurn(int* factoryNo, char* tile, int* storageRow) {
 
     string command;
 
-    bool invalidTurn = true;
+    bool result = true;
+    bool invalidTurn = result;
 
     while (invalidTurn) {
         if (cin >> command) {
@@ -133,10 +142,15 @@ void GameHandler::getPlayerTurn(int* factoryNo, char* tile, int* storageRow) {
         }
 
         if (invalidTurn) {
-            cout << endl << "Enter turn again" << endl
-                 << "> ";
-            cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            if (cin.eof()) {
+                cout << endl << "EOF" <<endl;
+                invalidTurn = false;
+            } else {
+                cout << endl << "Enter turn again" << endl
+                    << "> ";
+                cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
         }
     }
 }
