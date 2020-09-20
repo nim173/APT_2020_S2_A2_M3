@@ -20,14 +20,14 @@ void GameHandler::playNewGame() {
         for (int i = 0; i < NO_OF_ROUNDS && !eof; ++i) {
             // TODO - player with f starts first
             cout << endl << "=== START OF ROUND ===" << endl;
-            int j = NO_OF_PLAYERS;
-            while (!newGame->roundOver() && !eof) {
-                eof = playTurn(j % NO_OF_PLAYERS, newGame);
-                ++j;
-            }
+            // int j = NO_OF_PLAYERS;
+            // while (!newGame->roundOver() && !eof) {
+            //     eof = playTurn(j % NO_OF_PLAYERS, newGame);
+            //     ++j;
+            // }
             if (!eof) {
                 cout << endl << "===  END OF ROUND  ===" << endl;
-                printRoundResults();
+               // printRoundResults();
             }
         }
 
@@ -57,7 +57,7 @@ bool GameHandler::playTurn(int playerNo, Game* game) {
          << "> ";
 
     int factoryNo;
-    char tile;
+    Tile tile;
     int storageRow;
 
     bool result = true;
@@ -75,13 +75,13 @@ bool GameHandler::playTurn(int playerNo, Game* game) {
         // handle 'f' tile if specified factory is the centre factory (0)
         // if first element of centre factory is 'F', add f to floor line of player
         if (factoryNo == 0 && game->checkForFirstPlayerTile()) {
-            players[playerNo]->addToFloorLine(FIRST_PLAYER_TILE, 1);
+            players[playerNo]->addToFloorLine((Tile)FIRST_PLAYER_TILE, 1);
         }
     } // not EOF
     return result;
 }
 
-bool GameHandler::getPlayerTurn(int* factoryNo, char* tile, int* storageRow) {
+bool GameHandler::getPlayerTurn(int* factoryNo, Tile* tile, int* storageRow) {
     string inputFactory;
     string inputTile;
     string inputStorageRow;
@@ -103,7 +103,7 @@ bool GameHandler::getPlayerTurn(int* factoryNo, char* tile, int* storageRow) {
                         *factoryNo = std::stoi(inputFactory);
                         if (cin >> inputTile) {
                             if (validTiles.find(inputTile) != string::npos) {
-                                *tile = inputTile.at(0);
+                                *tile = (Tile)inputTile.at(0);
                                 if (cin >> inputStorageRow) {
                                     if (inputStorageRow.compare("1") >= 0 && inputStorageRow.compare(maxStorageRowValue) <= 0) {
                                         *storageRow = std::stoi(inputStorageRow);
@@ -145,6 +145,7 @@ bool GameHandler::getPlayerTurn(int* factoryNo, char* tile, int* storageRow) {
             if (cin.eof()) {
                 cout << endl << "EOF" <<endl;
                 invalidTurn = false;
+                result = false;
             } else {
                 cout << endl << "Enter turn again" << endl
                     << "> ";
@@ -153,9 +154,10 @@ bool GameHandler::getPlayerTurn(int* factoryNo, char* tile, int* storageRow) {
             }
         }
     }
+    return result;
 }
 
-bool GameHandler::validateTurn(int playerNo, Game* game, int factoryNo, char tile, int storageRow) {
+bool GameHandler::validateTurn(int playerNo, Game* game, int factoryNo, Tile tile, int storageRow) {
     string errorMessage = "Invalid turn: ";
     bool result (game->validateTurn(factoryNo, tile, &errorMessage) && 
             players[playerNo]->validateTurn(tile, storageRow, &errorMessage));

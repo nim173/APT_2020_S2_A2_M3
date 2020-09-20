@@ -19,7 +19,7 @@ private:
 
     // gets initialised by the contents (mozaic format) of the file default.mozaic in constructor
     // used as reference to fill player mosaics
-    char defaultMosaic[MOSAIC_DIM][MOSAIC_DIM];
+    Tile defaultMosaic[MOSAIC_DIM][MOSAIC_DIM];
 
     bool addPlayers();
 
@@ -30,9 +30,9 @@ private:
 
     // gets turn input and does input error checking (does not check for game rules)
     // returns false if EOF encountered
-    bool getPlayerTurn(int* factoryNo, char* tile, int* storageRow);
+    bool getPlayerTurn(int* factoryNo, Tile* tile, int* storageRow);
 
-    bool validateTurn(int playerNo, Game* game, int factoryNo, char tile, int storageRow);
+    bool validateTurn(int playerNo, Game* game, int factoryNo, Tile tile, int storageRow);
 
     void printRoundResults();
 

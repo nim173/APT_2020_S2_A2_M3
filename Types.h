@@ -1,6 +1,8 @@
 #ifndef TYPES
 #define TYPES
 
+typedef char Tile;
+
 #define MOSAIC_DIM          5
 #define NO_OF_PLAYERS       2
 #define NO_OF_ROUNDS        5
@@ -9,7 +11,7 @@
 #define EMPTY_SLOT          '.'
 #define FIRST_PLAYER_TILE   'F'
 //E represents an empty slot
-enum Tile {R, Y, B, L, U, F, E};
+// enum Tile {R, Y, B, L, U, F, E};
 
 
 #endif // TYPES

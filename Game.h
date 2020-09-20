@@ -19,17 +19,17 @@ public:
 
     // removes the specified tile from the specified factory and returns the number of instances of the tile found
     // assume specified factory is not empty
-    int removeFromFactory(int factoryNo, char tile); // - Ryan
+    int removeFromFactory(int factoryNo, Tile tile); // - Ryan
     
     // checks if all tiles (in factories) are taken
     bool roundOver();
 
     // returns false if the given factory is empty or if it does not contain the specified tile
-    bool validateTurn(int factoryNo, char tile, string* errorMessage);
+    bool validateTurn(int factoryNo, Tile tile, string* errorMessage);
 
-    void addToTileBag(char tile);
+    void addToTileBag(Tile tile);
 
-    char removeFromTileBag();
+    Tile removeFromTileBag();
 
     // returns true if the FIRST_PLAYER_TILE is not allocated to a player
     // (i.e. it is at the first position of the centre factory [0])
@@ -41,7 +41,7 @@ private:
     LinkedList tilebag;
 
     // an array of vectors for the the central factory + 5 factories
-    vector<char> factories[NO_OF_FACTORIES];
+    vector<Tile> factories[NO_OF_FACTORIES];
 
     // Turns - we could store it here, maybe a 2D array for the 5 rounds (or store them in Player)
     vector<string> turns; 

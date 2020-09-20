@@ -56,7 +56,7 @@ std::string Player::printPlayerBoard() {
     return result;
 }
 
-bool Player::validateTurn(char tile, int row, string* errorMessage) {
+bool Player::validateTurn(Tile tile, int row, string* errorMessage) {
     bool valid = true;
     if (!(storageRow[row].size() == (unsigned int) row)) {
         for (int i = 0; i < MOSAIC_DIM; ++i) {
@@ -68,7 +68,7 @@ bool Player::validateTurn(char tile, int row, string* errorMessage) {
         }
         if (valid) {
             // checks if the first filled slot in the storage row is filled by the same tile or empty
-            char ch = storageRow[row].at(0);
+            Tile ch = storageRow[row].at(0);
             if (!(ch == tile || ch == EMPTY_SLOT)) {
                 valid = false;
                 *errorMessage += "Storage Row " + std::to_string(row) + 
@@ -84,7 +84,7 @@ bool Player::validateTurn(char tile, int row, string* errorMessage) {
     return valid;
 }
 
-void Player::addToStorageRow(int row, char tile, int numTilesToAdd) {
+void Player::addToStorageRow(int row, Tile tile, int numTilesToAdd) {
     for (int i = storageRow[row].size(); i < row && numTilesToAdd > 0; ++i) {
         storageRow[row].push_back(tile);
         --numTilesToAdd;
@@ -92,13 +92,13 @@ void Player::addToStorageRow(int row, char tile, int numTilesToAdd) {
     addToFloorLine(tile, numTilesToAdd);
 }
 
-void Player::addToFloorLine(char tile, int numTilesToAdd) {
+void Player::addToFloorLine(Tile tile, int numTilesToAdd) {
     while (numTilesToAdd > 0) {
         brokenTiles.push_back(tile);
         --numTilesToAdd;
     }
 }
 
-void Player::addToMosaic(int row, int col, char tile) {
+void Player::addToMosaic(int row, int col, Tile tile) {
     mosaic[row][col] = tile;
 }

@@ -20,7 +20,7 @@ bool Game::roundOver() {
     return result;
 }
 
-bool Game::validateTurn(int factoryNo, char tile, string* errorMessage) {
+bool Game::validateTurn(int factoryNo, Tile tile, string* errorMessage) {
     bool valid = false;
     if (!factories[factoryNo].empty()) {
         unsigned int i = 0;
@@ -54,11 +54,11 @@ std::string Game::printFactories() {
     return result;
 }
 
-void Game::addToTileBag(char tile) {
+void Game::addToTileBag(Tile tile) {
     tilebag.addBack(tile);
 }
 
-// char Game::removeFromTileBag() {
+// Tile Game::removeFromTileBag() {
 //     return tilebag.removeFront();
 // }
 
