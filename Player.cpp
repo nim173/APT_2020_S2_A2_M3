@@ -1,12 +1,36 @@
 #include <string>
+#include <vector>
 #include "Player.h"
+
+using std::vector;
 
 Player::Player(std::string name) {
     this->name = name;
+    points = 0;
+
+    // TODO - intialize storage rows
+
+    // initialize wall
+    wall = new Tile*[MOSAIC_DIM];
+    for (int i = 0; i < MOSAIC_DIM; ++i) {
+         wall[i] = new Tile[MOSAIC_DIM];
+    }
+    for (int i = 0; i < MOSAIC_DIM; ++i) {
+        for (int j = 0; j < MOSAIC_DIM; ++j) {
+            wall[i][j] = EMPTY_SLOT;
+        }
+    }
+
+    //TODO - intitialize floor line
 }
 
 Player::~Player() {
+    // TODO: delete storage rows
 
+    for (int i = 0; i != MOSAIC_DIM; ++i) {
+        delete[] wall[i];
+    }
+    delete[] wall;
 }
 
 std::string Player::getName() {
@@ -40,7 +64,7 @@ std::string Player::printPlayerBoard() {
 
         // add mosaic
         for (int j = 0; j < MOSAIC_DIM; ++j) {
-            result += " " + mosaic[i][j];
+            result += " " + wall[i][j];
         }
 
         result += "\n";
@@ -48,8 +72,8 @@ std::string Player::printPlayerBoard() {
 
     // add broken tiles
     result += "broken: ";
-    for (unsigned int i = 0; i < brokenTiles.size(); ++i) {
-        result += " " + brokenTiles.at(i);
+    for (unsigned int i = 0; i < floorLine.size(); ++i) {
+        result += " " + floorLine.at(i);
     }
 
     result += "\n";
@@ -60,7 +84,7 @@ bool Player::validateTurn(Tile tile, int row, string* errorMessage) {
     bool valid = true;
     if (!(storageRow[row].size() == (unsigned int) row)) {
         for (int i = 0; i < MOSAIC_DIM; ++i) {
-            if (mosaic[row][i] == tile) {
+            if (wall[row][i] == tile) {
                 valid = false;
                 *errorMessage += "Tile " + std::to_string(tile) + " already filled in row " + 
                                     std::to_string(row) + " of Mosaic\n";
@@ -94,11 +118,88 @@ void Player::addToStorageRow(int row, Tile tile, int numTilesToAdd) {
 
 void Player::addToFloorLine(Tile tile, int numTilesToAdd) {
     while (numTilesToAdd > 0) {
-        brokenTiles.push_back(tile);
+        floorLine.push_back(tile);
         --numTilesToAdd;
     }
 }
 
-void Player::addToMosaic(int row, int col, Tile tile) {
-    mosaic[row][col] = tile;
+void Player::addToWall(int row, int col, Tile tile) {
+    wall[row][col] = tile;
+}
+
+int Player::updateScore(Mosaic defaultMosaic) {
+    // Go through pattern lines from top to bottom   
+    int pointsToAdd = 0;
+    for (unsigned int i = 0; i < MOSAIC_DIM; ++i) {
+        if (storageRow[i].size() == (i+1)) {
+            ++pointsToAdd;
+
+            // For each complete line add a tile of the same color in the corresponding line of the wall
+            for (int j = 0; j < MOSAIC_DIM; ++j) {
+                if (storageRow[i].at(0) == defaultMosaic[i][j]) {
+                    wall[i][j] = storageRow[i].at(0);
+                    
+                    // Each time a tile is added to the wall, score points immediately (as per official rules)
+                    // check for vertically adjacent tiles
+                    for (int k = i-1; k >= 0; --k) {
+                        if (wall[k][j] != EMPTY_SLOT) {
+                            ++pointsToAdd;
+                        } else {
+                            // stops the loop
+                            k = -1;
+                        }
+                    }
+                    for (int k = i; k < MOSAIC_DIM; ++k) {
+                        if (wall[k][j] != EMPTY_SLOT) {
+                            ++pointsToAdd;
+                        } else {
+                            // stops the loop
+                            k = MOSAIC_DIM;
+                        }
+                    }
+
+                    // check for horizontally adjacent tiles
+                    for (int k = j-1; k >= 0; --k) {
+                        if (wall[i][k] != EMPTY_SLOT) {
+                            ++pointsToAdd;
+                        } else {
+                            // stops the loop
+                            k = -1;
+                        }
+                    }
+                    for (int k = j; k < MOSAIC_DIM; ++k) {
+                        if (wall[i][k] != EMPTY_SLOT) {
+                            ++pointsToAdd;
+                        } else {
+                            // stops the loop
+                            k = MOSAIC_DIM;
+                        }
+                    }
+
+                    // stops the loop
+                    j = MOSAIC_DIM;
+                }
+            }
+        }
+    }
+
+    // decrease points for tiles in floor line (as per official azul rules)
+    int floorLineSize = floorLine.size();
+    if (floorLineSize >= 0 && floorLineSize < 3) {
+        pointsToAdd -= floorLineSize;
+    } else if (floorLineSize >= 3 && floorLineSize < 6) {
+        pointsToAdd -= (2*floorLineSize - 2);
+    } else if (floorLineSize == 6) {
+        pointsToAdd -= 11;
+    } else {
+        pointsToAdd -= 14;
+    } // for 7 (or more) tiles
+
+    this->points += pointsToAdd;
+    if (this->points < 0) {
+        // player score cannot be less than zero
+        this->points = 0;
+    }
+
+    return pointsToAdd;
 }

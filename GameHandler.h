@@ -9,7 +9,7 @@
 class GameHandler {
 public:
     // initialises default mosaic
-    // GameHandler();
+    GameHandler();
 
     void playNewGame();
     bool loadGame();
@@ -19,7 +19,7 @@ private:
 
     // gets initialised by the contents (mozaic format) of the file default.mozaic in constructor
     // used as reference to fill player mosaics
-    Tile defaultMosaic[MOSAIC_DIM][MOSAIC_DIM];
+    Mosaic defaultMosaic;
 
     bool addPlayers();
 
@@ -33,6 +33,8 @@ private:
     bool getPlayerTurn(int* factoryNo, Tile* tile, int* storageRow);
 
     bool validateTurn(int playerNo, Game* game, int factoryNo, Tile tile, int storageRow);
+    
+    void printPlayerPoints(string message);
 
     void printRoundResults();
 
