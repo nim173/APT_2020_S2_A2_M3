@@ -176,14 +176,20 @@ bool GameHandler::addPlayers() {
     string player1Name;
     cout << "> ";
     if (cin >> player1Name) {
-        cout << endl << "Enter a name for player 2" << endl;
+        cout << endl << "Enter a name for player 2" << endl << "> ";
         string player2Name;
-        cout << "> ";
-        if (cin >> player2Name) {
-            players[0] = new Player(player1Name);
-            players[1] = new Player(player2Name);
-            result = true;
-        } // if not EOF
+        do {
+            if (cin >> player2Name) {
+                if (player1Name != player2Name) {
+                    players[0] = new Player(player1Name);
+                    players[1] = new Player(player2Name);
+                    result = true;
+                } else {
+                    cout << "Error: Players cannot have the same name" << endl << endl
+                        << "Enter a name for player 2" << endl << "> ";
+                }
+            } // if not EOF
+        } while (!cin.eof() && player1Name == player2Name);
     } // if not EOF
     
     // returns true if both players added successfully
