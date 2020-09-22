@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "Types.h"
+#include "DELinkedList.h"
 
 using std::string;
 using std::vector;
@@ -42,12 +43,12 @@ private:
     int points;
 
     // Player Mosaic
-    vector<Tile> storageRow[MOSAIC_DIM]; // changing this to LinkedList after size field added to DELinkedList 
+    vector<Tile>* storageRow[MOSAIC_DIM];
     Mosaic wall;
 
     // the floor line would not have a max size, as box-lid is out of scope and to keep track of the FIRST_PLAYER_TILE
     // for scoring only the first 7 tiles would be counted as per game rules
-    vector<Tile> floorLine; // TODO - change to linkedlist
+    LinkedList* floorLine;
 };
 
 #endif // Player
