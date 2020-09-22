@@ -14,6 +14,7 @@ LinkedList::LinkedList()
 {
    head = nullptr;
    tail = nullptr;
+   size = 0;
 }
 
 LinkedList::LinkedList(const LinkedList &other)
@@ -28,16 +29,9 @@ LinkedList::~LinkedList()
 
  int LinkedList::getSize() const
 {
-   int count = 0;
-   Node *current = head;
-   while (current != nullptr)
-   {
-      ++count;
-      current = current->next;
-   }
-
-   return count;
+  return this->size;
 }
+
 
 
 void LinkedList::addFront(Tile value)
@@ -51,6 +45,7 @@ void LinkedList::addFront(Tile value)
    {
       head->prev = toAdd; 
    }
+   ++size;
 }
 
 void LinkedList::addBack(Tile value)
@@ -71,6 +66,7 @@ void LinkedList::addBack(Tile value)
 
       current->prev = toAdd;
    }
+   ++size;
 }
 
 void LinkedList::removeBack()
@@ -90,6 +86,7 @@ void LinkedList::removeBack()
 
       delete toDelete;
    }
+   --size;
 
 }
 
@@ -111,6 +108,7 @@ Tile LinkedList::removeFront()
       }
       delete toDelete;
    }
+   --size;
    return tile;
 }
 
