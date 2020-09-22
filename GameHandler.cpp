@@ -1,14 +1,43 @@
 #include <iostream>
 #include <string>
 #include <limits>
+#include <fstream>
 #include "GameHandler.h"
 #include "Game.h"
 #include "Player.h"
+#include "Types.h"
 
 using std::cout;
 using std::endl;
 using std::cin;
 using std::string;
+
+GameHandler::GameHandler() {
+    // create defaultMosaic 
+    defaultMosaic = new Tile*[MOSAIC_DIM];
+    for (int i = 0; i != MOSAIC_DIM; ++i) {
+         defaultMosaic[i] = new Tile[MOSAIC_DIM];
+    }
+
+    // load default mosaic
+    std::ifstream inFile;
+    inFile.open("default.mozaic");
+    if (inFile.good()) {
+        char ch;
+        for (int i = 0; i < MOSAIC_DIM; ++i) {
+            for (int j = 0; j < MOSAIC_DIM;) {
+                inFile.get(ch);
+                // accounting for newline characters
+                if (ch != '\n' && ch!= '\r' && ch != ' ') {
+                    defaultMosaic[i][j] = ch;
+                    ++j;
+                }
+            }
+        }
+    } else {
+        // file not found
+    }
+}
 
 void GameHandler::playNewGame() {
     if (addPlayers()) {
@@ -27,7 +56,12 @@ void GameHandler::playNewGame() {
             // }
             if (!eof) {
                 cout << endl << "===  END OF ROUND  ===" << endl;
-               // printRoundResults();
+                cout << endl << "===  ROUND RESULT  ===" << endl;
+                
+                // Print round results for all rounds except the last
+                if (i != NO_OF_ROUNDS - 1) {
+                    printRoundResults();
+                }
             }
         }
 
@@ -176,14 +210,20 @@ bool GameHandler::addPlayers() {
     string player1Name;
     cout << "> ";
     if (cin >> player1Name) {
-        cout << endl << "Enter a name for player 2" << endl;
+        cout << endl << "Enter a name for player 2" << endl << "> ";
         string player2Name;
-        cout << "> ";
-        if (cin >> player2Name) {
-            players[0] = new Player(player1Name);
-            players[1] = new Player(player2Name);
-            result = true;
-        } // if not EOF
+        do {
+            if (cin >> player2Name) {
+                if (player1Name != player2Name) {
+                    players[0] = new Player(player1Name);
+                    players[1] = new Player(player2Name);
+                    result = true;
+                } else {
+                    cout << "Error: Players cannot have the same name" << endl << endl
+                        << "Enter a name for player 2" << endl << "> ";
+                }
+            } // if not EOF
+        } while (!cin.eof() && player1Name == player2Name);
     } // if not EOF
     
     // returns true if both players added successfully
@@ -192,12 +232,41 @@ bool GameHandler::addPlayers() {
 }
 
 void GameHandler::printRoundResults() {
-    // TODO after figuring out scoring from player
+    cout << endl << "Points Scored" << endl;
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
+        cout << "Player " + players[i]->getName() + ": " 
+                + std::to_string(players[i]->updateScore(defaultMosaic)) << endl;
+        
+    }
+ 
+    printPlayerPoints("Total Points");
 }
 
 void GameHandler::printGameResults() {
-    cout << endl << "Final Scores:" << endl;
+    printPlayerPoints("Final Scores:");
 
+    int max = 0;
+    bool drawn = false;
+    for (int i = 1; i < NO_OF_PLAYERS; ++i) {
+        if (players[i]->getPoints() > players[max]->getPoints()) {
+            max = i;
+            drawn = false;
+        } else if (players[i]->getPoints() == players[max]->getPoints()) {
+            drawn = true;
+        }
+    }
+
+    string message;
+    if (drawn == false) {
+        message = "Player " + players[max]->getName() + " wins!";
+    } else {
+        message = "Game drawn!";
+    }
+    cout << message << endl;
+}
+
+void GameHandler::printPlayerPoints(string message) {
+    cout << endl << message << endl;
     for (int i = 0; i < NO_OF_PLAYERS; ++i) {
         cout << "Player " + players[i]->getName() + ": " 
                 + std::to_string(players[i]->getPoints()) << endl;

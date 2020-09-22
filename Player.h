@@ -14,6 +14,7 @@ public:
     ~Player();
 
     string getName();
+
     int getPoints();
 
     string printPlayerBoard();
@@ -32,19 +33,21 @@ public:
     void addToFloorLine(Tile tile, int numTilesToAdd);
 
     // add specified tile to given position in mosaic
-    void addToMosaic(int row, int col, Tile tile);
+    void addToWall(int row, int col, Tile tile);
+
+    int updateScore(Mosaic defaultMosaic);
     
 private:
     string name;
     int points;
 
     // Player Mosaic
-    vector<Tile> storageRow[MOSAIC_DIM];
-    Tile mosaic[MOSAIC_DIM][MOSAIC_DIM];
+    vector<Tile> storageRow[MOSAIC_DIM]; // changing this to LinkedList after size field added to DELinkedList 
+    Mosaic wall;
 
     // the floor line would not have a max size, as box-lid is out of scope and to keep track of the FIRST_PLAYER_TILE
     // for scoring only the first 7 tiles would be counted as per game rules
-    vector<Tile> brokenTiles;
+    vector<Tile> floorLine; // TODO - change to linkedlist
 };
 
 #endif // Player

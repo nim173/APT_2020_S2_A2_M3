@@ -1,8 +1,6 @@
 #ifndef TYPES
 #define TYPES
 
-typedef char Tile;
-
 #define MOSAIC_DIM          5
 #define NO_OF_PLAYERS       2
 #define NO_OF_ROUNDS        5
@@ -11,6 +9,7 @@ typedef char Tile;
 #define EMPTY_SLOT          '.'
 #define FIRST_PLAYER_TILE   'F'
 
-
+typedef char Tile;
+typedef char** Mosaic;
 
 #endif // TYPES
