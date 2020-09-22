@@ -8,7 +8,10 @@ Player::Player(std::string name) {
     this->name = name;
     points = 0;
 
-    // TODO - intialize storage rows
+    // intialize storage rows
+    for (int i = 0; i < MOSAIC_DIM; ++i) {
+        storageRow[i] = new vector<Tile>;
+    }
 
     // initialize wall
     wall = new Tile*[MOSAIC_DIM];
@@ -21,16 +24,23 @@ Player::Player(std::string name) {
         }
     }
 
-    //TODO - intitialize floor line
+    //intitialize floor line
+    floorLine = new LinkedList();
 }
 
 Player::~Player() {
-    // TODO: delete storage rows
+    // delete storage rows
+    for (int i = 0; i < MOSAIC_DIM; ++i) {
+        delete storageRow[i];
+    }
 
+    // delete wall
     for (int i = 0; i != MOSAIC_DIM; ++i) {
         delete[] wall[i];
     }
     delete[] wall;
+
+    delete floorLine;
 }
 
 std::string Player::getName() {
@@ -56,7 +66,7 @@ std::string Player::printPlayerBoard() {
 
         // add storage rows (in reverse)
         for (int j = i; j >= 0; --j) {
-            result += storageRow[i].at(j) + " ";
+            result += storageRow[i]->at(j) + " ";
         }
 
         // partition
@@ -72,9 +82,7 @@ std::string Player::printPlayerBoard() {
 
     // add broken tiles
     result += "broken: ";
-    for (unsigned int i = 0; i < floorLine.size(); ++i) {
-        result += " " + floorLine.at(i);
-    }
+    result += floorLine->toString();
 
     result += "\n";
     return result;
@@ -82,7 +90,7 @@ std::string Player::printPlayerBoard() {
 
 bool Player::validateTurn(Tile tile, int row, string* errorMessage) {
     bool valid = true;
-    if (!(storageRow[row].size() == (unsigned int) row)) {
+    if (!(storageRow[row]->size() == (unsigned int) row)) {
         for (int i = 0; i < MOSAIC_DIM; ++i) {
             if (wall[row][i] == tile) {
                 valid = false;
@@ -92,7 +100,7 @@ bool Player::validateTurn(Tile tile, int row, string* errorMessage) {
         }
         if (valid) {
             // checks if the first filled slot in the storage row is filled by the same tile or empty
-            Tile ch = storageRow[row].at(0);
+            Tile ch = storageRow[row]->at(0);
             if (!(ch == tile || ch == EMPTY_SLOT)) {
                 valid = false;
                 *errorMessage += "Storage Row " + std::to_string(row) + 
@@ -109,8 +117,8 @@ bool Player::validateTurn(Tile tile, int row, string* errorMessage) {
 }
 
 void Player::addToStorageRow(int row, Tile tile, int numTilesToAdd) {
-    for (int i = storageRow[row].size(); i < row && numTilesToAdd > 0; ++i) {
-        storageRow[row].push_back(tile);
+    for (int i = storageRow[row]->size(); i < row && numTilesToAdd > 0; ++i) {
+        storageRow[row]->push_back(tile);
         --numTilesToAdd;
     }
     addToFloorLine(tile, numTilesToAdd);
@@ -118,7 +126,7 @@ void Player::addToStorageRow(int row, Tile tile, int numTilesToAdd) {
 
 void Player::addToFloorLine(Tile tile, int numTilesToAdd) {
     while (numTilesToAdd > 0) {
-        floorLine.push_back(tile);
+        floorLine->addBack(tile);
         --numTilesToAdd;
     }
 }
@@ -131,13 +139,13 @@ int Player::updateScore(Mosaic defaultMosaic) {
     // Go through pattern lines from top to bottom   
     int pointsToAdd = 0;
     for (unsigned int i = 0; i < MOSAIC_DIM; ++i) {
-        if (storageRow[i].size() == (i+1)) {
+        if (storageRow[i]->size() == (i+1)) {
             ++pointsToAdd;
 
             // For each complete line add a tile of the same color in the corresponding line of the wall
             for (int j = 0; j < MOSAIC_DIM; ++j) {
-                if (storageRow[i].at(0) == defaultMosaic[i][j]) {
-                    wall[i][j] = storageRow[i].at(0);
+                if (storageRow[i]->at(0) == defaultMosaic[i][j]) {
+                    wall[i][j] = storageRow[i]->at(0);
                     
                     // Each time a tile is added to the wall, score points immediately (as per official rules)
                     // check for vertically adjacent tiles
@@ -184,7 +192,7 @@ int Player::updateScore(Mosaic defaultMosaic) {
     }
 
     // decrease points for tiles in floor line (as per official azul rules)
-    int floorLineSize = floorLine.size();
+    int floorLineSize = floorLine->getSize();
     if (floorLineSize >= 0 && floorLineSize < 3) {
         pointsToAdd -= floorLineSize;
     } else if (floorLineSize >= 3 && floorLineSize < 6) {
