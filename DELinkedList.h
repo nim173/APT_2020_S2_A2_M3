@@ -2,6 +2,12 @@
 #define LINKED_LIST_H
 #include "Types.h"
 
+#include <exception>
+#include <iostream>
+#include <fstream>
+#include <limits>
+#include <string>
+
 class Node
 {
 public:
@@ -45,6 +51,11 @@ public:
    Tile removeFront();
 
    /**
+    * Linked List to String method
+    */
+   std::string toString();
+
+   /**
     * Removes all values from the Linked List
     */
    void clear();
@@ -54,7 +65,5 @@ private:
    Node *tail;
    int size;
 };
-
-
 
 #endif // LINKED_LIST_H

@@ -13,3 +13,13 @@ GameFileHandler::~GameFileHandler()
 
 }
 
+void GameFileHandler::save()
+{
+
+}
+
+void GameFileHandler::load()
+{
+
+}
+
