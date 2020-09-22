@@ -12,10 +12,11 @@ using std::vector;
 
 class Game {
 public:
-    // constructors - loads tilebag, and fills factories
-    Game(); // default constructor - loads default tilebag from textfile - Sean
-    // another constructor with tilebag as a parameter - load game - Sean
+    Game(LinkedList* tilebag); 
     ~Game();
+
+    // called in the constructor and at the end of each round to populate factories from tilebag
+    void populateFactories(LinkedList* tilebag);
 
     // removes the specified tile from the specified factory and returns the number of instances of the tile found
     // assume specified factory is not empty
@@ -27,10 +28,6 @@ public:
     // returns false if the given factory is empty or if it does not contain the specified tile
     bool validateTurn(int factoryNo, Tile tile, string* errorMessage);
 
-    void addToTileBag(Tile tile);
-
-    Tile removeFromTileBag();
-
     // returns true if the FIRST_PLAYER_TILE is not allocated to a player
     // (i.e. it is at the first position of the centre factory [0])
     bool checkForFirstPlayerTile();
@@ -38,13 +35,8 @@ public:
     std::string printFactories();
 
 private:
-    LinkedList tilebag;
-
     // an array of vectors for the the central factory + 5 factories
-    vector<Tile> factories[NO_OF_FACTORIES];
-
-    // Turns - we could store it here, maybe a 2D array for the 5 rounds (or store them in Player)
-    vector<string> turns; 
+    vector<Tile>* factories[NO_OF_FACTORIES];
 
     // add all tiles in given factory to the first vector of factories array (i.e. Centre Factory) - Ryan
     void addToCentreFactory(int factoryNo); 

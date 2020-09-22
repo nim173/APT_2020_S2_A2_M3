@@ -11,15 +11,21 @@ using std::vector;
 
 class GameFileHandler {
 public:
-GameFileHandler();
-~GameFileHandler();
+    GameFileHandler();
+    ~GameFileHandler();
 
-void save();
-void load();
+    bool loadTileBag(string file, LinkedList* tilebag);
+    bool loadMosaic(string file, Mosaic mosaic);
 
+    void save();
+    void load();
 
 private:
 
+
+
+private:
+    std::ifstream inFile;
 };
 
 
