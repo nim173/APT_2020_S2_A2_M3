@@ -11,6 +11,12 @@ using std::vector;
 
 class GameFileHandler {
 public:
+GameFileHandler();
+~GameFileHandler();
+
+void save();
+void load();
+
 
 
 
