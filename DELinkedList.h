@@ -22,7 +22,7 @@ public:
    /**
     * Return the current size of the Linked List.
     */
-   Tile size() const;
+   int getSize() const;
 
    /**
     * Add the value to the back of the Linked List
@@ -52,6 +52,9 @@ public:
 private:
    Node *head;
    Node *tail;
+   int size;
 };
+
+
 
 #endif // LINKED_LIST_H

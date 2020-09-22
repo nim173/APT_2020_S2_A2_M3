@@ -26,7 +26,7 @@ LinkedList::~LinkedList()
    clear();
 }
 
- Tile LinkedList::size() const
+ int LinkedList::getSize() const
 {
    int count = 0;
    Node *current = head;
