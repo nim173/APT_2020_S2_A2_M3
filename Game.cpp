@@ -29,6 +29,25 @@ void Game::populateFactories(LinkedList* tilebag) {
     }
 }
 
+int Game::removeFromFactory(int factoryNo, Tile tile){
+    int toRemove[5] = {0};
+    int count = 0;
+
+    for(int i=0 ; i < (factories[factoryNo])->size(); i++){
+        if((factories[factoryNo]->at(i)) == tile){
+            toRemove[count] = i;
+            count++;
+        }
+    }
+
+    for(int i = 0; i< count; i++)
+    {
+        factories[factoryNo]->erase(factories[factoryNo]->begin() + toRemove[i]);
+    }
+
+    return count;
+}
+
 bool Game::roundOver() {
     bool result = false;
     for (int i = 0; i < NO_OF_FACTORIES && !result; ++i) {
