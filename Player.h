@@ -36,7 +36,11 @@ public:
     // add specified tile to given position in mosaic
     void addToWall(int row, int col, Tile tile);
 
-    int updateScore(Mosaic defaultMosaic);
+    // TODO - Description
+    int updateScore(Mosaic defaultMosaic, LinkedList* tilebag);
+
+    // returns true if player has first-player tile
+    bool resetFloorline(LinkedList* tilebag);
     
 private:
     string name;

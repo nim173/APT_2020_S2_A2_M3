@@ -10,7 +10,12 @@ Player::Player(std::string name) {
 
     // intialize storage rows
     for (int i = 0; i < MOSAIC_DIM; ++i) {
-        storageRow[i] = new vector<Tile>;
+        storageRow[i] = new vector<Tile>(i+1);
+    }
+    for (int i = 0; i < MOSAIC_DIM; ++i) {
+        for (int j = 0; j < i+1; ++j) {
+            storageRow[i]->push_back(EMPTY_SLOT);
+        }
     }
 
     // initialize wall
@@ -135,17 +140,25 @@ void Player::addToWall(int row, int col, Tile tile) {
     wall[row][col] = tile;
 }
 
-int Player::updateScore(Mosaic defaultMosaic) {
+int Player::updateScore(Mosaic defaultMosaic, LinkedList* tilebag) {
     // Go through pattern lines from top to bottom   
     int pointsToAdd = 0;
+    Tile temp;
     for (unsigned int i = 0; i < MOSAIC_DIM; ++i) {
         if (storageRow[i]->size() == (i+1)) {
             ++pointsToAdd;
 
             // For each complete line add a tile of the same color in the corresponding line of the wall
             for (int j = 0; j < MOSAIC_DIM; ++j) {
-                if (storageRow[i]->at(0) == defaultMosaic[i][j]) {
-                    wall[i][j] = storageRow[i]->at(0);
+                temp = storageRow[i]->at(0);
+                if (temp == defaultMosaic[i][j]) {
+                    wall[i][j] = temp;
+
+                    // add all tiles from any pattern lines that now have no tile in the rightmost space to tilebag
+                    for (unsigned int k = 0; k < i; ++i) {
+                        tilebag->addBack(temp);
+                    }
+                    storageRow[i]->clear();
                     
                     // Each time a tile is added to the wall, score points immediately (as per official rules)
                     // check for vertically adjacent tiles
@@ -210,4 +223,18 @@ int Player::updateScore(Mosaic defaultMosaic) {
     }
 
     return pointsToAdd;
+}
+
+bool Player::resetFloorline(LinkedList* tilebag) {
+    bool result = false;
+    Tile temp;
+    while (floorLine->getSize() > 0) {
+        temp = floorLine->removeFront();
+        if (temp == FIRST_PLAYER_TILE) {
+            result = true;
+        } else {
+            tilebag->addBack(temp);
+        }
+    }
+    return result;
 }

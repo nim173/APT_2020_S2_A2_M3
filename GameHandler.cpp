@@ -3,6 +3,7 @@
 #include <limits>
 #include <fstream>
 #include "GameHandler.h"
+#include "GameFileHandler.h"
 #include "Game.h"
 #include "Player.h"
 #include "Types.h"
@@ -13,43 +14,35 @@ using std::cin;
 using std::string;
 
 GameHandler::GameHandler() {
-    // create defaultMosaic 
-    defaultMosaic = new Tile*[MOSAIC_DIM];
-    for (int i = 0; i != MOSAIC_DIM; ++i) {
-         defaultMosaic[i] = new Tile[MOSAIC_DIM];
-    }
+    // initialize file handler
+    this->fileHandler = new GameFileHandler();
 
-    // load default mosaic
-    std::ifstream inFile;
-    inFile.open("default.mozaic");
-    if (inFile.good()) {
-        char ch;
-        for (int i = 0; i < MOSAIC_DIM; ++i) {
-            for (int j = 0; j < MOSAIC_DIM;) {
-                inFile.get(ch);
-                // accounting for newline characters
-                if (ch != '\n' && ch!= '\r' && ch != ' ') {
-                    defaultMosaic[i][j] = ch;
-                    ++j;
-                }
-            }
-        }
-    } else {
-        // file not found
+    // initialize default tilebag
+    tilebag = new LinkedList();
+    fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag); // TODO - ERROR CHECKING
+    
+    // initialize defaultMosaic 
+    defaultMosaicGrid = new Tile*[MOSAIC_DIM];
+    for (int i = 0; i != MOSAIC_DIM; ++i) {
+         defaultMosaicGrid[i] = new Tile[MOSAIC_DIM];
     }
+    fileHandler->loadMosaic(DEFAULT_MOSAIC_FILE, defaultMosaicGrid); // TODO - ERROR CHECKING
+
+    // initialize turns
+    turns = new vector<string>();
 }
 
 void GameHandler::playNewGame() {
     if (addPlayers()) {
         cout << endl << "Let's Play!" << endl;
-        Game* newGame = new Game();
+        Game* newGame = new Game(tilebag);
 
         // play the game
         bool eof = false;
+        int j = NO_OF_PLAYERS;
         for (int i = 0; i < NO_OF_ROUNDS && !eof; ++i) {
             // TODO - player with f starts first
             cout << endl << "=== START OF ROUND ===" << endl;
-            // int j = NO_OF_PLAYERS;
             // while (!newGame->roundOver() && !eof) {
             //     eof = playTurn(j % NO_OF_PLAYERS, newGame);
             //     ++j;
@@ -57,10 +50,11 @@ void GameHandler::playNewGame() {
             if (!eof) {
                 cout << endl << "===  END OF ROUND  ===" << endl;
                 cout << endl << "===  ROUND RESULT  ===" << endl;
-                
-                // Print round results for all rounds except the last
+                endRound();
+
+                // reset game board for all rounds except the last
                 if (i != NO_OF_ROUNDS - 1) {
-                    printRoundResults();
+                    j = resetGameBoard(newGame);
                 }
             }
         }
@@ -231,14 +225,13 @@ bool GameHandler::addPlayers() {
     return result;
 }
 
-void GameHandler::printRoundResults() {
+void GameHandler::endRound() {
     cout << endl << "Points Scored" << endl;
     for (int i = 0; i < NO_OF_PLAYERS; ++i) {
         cout << "Player " + players[i]->getName() + ": " 
-                + std::to_string(players[i]->updateScore(defaultMosaic)) << endl;
+                + std::to_string(players[i]->updateScore(defaultMosaicGrid, tilebag)) << endl;
         
     }
- 
     printPlayerPoints("Total Points");
 }
 
@@ -271,4 +264,15 @@ void GameHandler::printPlayerPoints(string message) {
         cout << "Player " + players[i]->getName() + ": " 
                 + std::to_string(players[i]->getPoints()) << endl;
     }
+}
+
+int GameHandler::resetGameBoard(Game* game) {
+    int result = -1;
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
+        if (players[i]->resetFloorline(tilebag)) {
+            result = i;
+        }
+    }
+    game->populateFactories(tilebag);
+    return result;
 }
