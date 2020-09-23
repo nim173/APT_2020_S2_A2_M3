@@ -2,25 +2,21 @@
 #define GAME_FILE_HANDLER
 
 #include <string>
-#include "Player.h"
 #include "Types.h"
-#include "DELinkedList.h"
 
 using std::string;
-using std::vector;
 
-class GameFileHandler {
+class GameFileHandler
+{
 public:
-GameFileHandler();
-~GameFileHandler();
+    GameFileHandler();
+    ~GameFileHandler();
 
-void save();
-void load();
-
+    void save(string fileName, string inputFactory, string inputTile, string inputStorageRow );
+    void load();
 
 private:
-
+   
 };
-
 
 #endif // GAME_FILE_HANDLER
