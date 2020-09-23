@@ -19,8 +19,9 @@ public:
     void populateFactories(LinkedList* tilebag);
 
     // removes the specified tile from the specified factory and returns the number of instances of the tile found
+    // and adds the remaining tiles to centre factory (if not rmeoving from centre factory)
     // assume specified factory is not empty
-    int removeFromFactory(int factoryNo, Tile tile); // - Ryan
+    int removeFromFactory(int factoryNo, Tile tile);
     
     // checks if all tiles (in factories) are taken
     bool roundOver();

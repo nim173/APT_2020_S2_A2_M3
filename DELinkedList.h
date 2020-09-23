@@ -15,7 +15,6 @@ public:
 
    Tile value;
    Node *next;
-   Node *prev;
 };
 
 class LinkedList

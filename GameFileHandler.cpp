@@ -34,7 +34,7 @@ bool GameFileHandler::loadTileBag(string file, LinkedList* tilebag) {
     if (inFile.good()) {
         string tiles;
         std::getline(inFile, tiles);
-        for (int i = 0; i < tiles.length(); ++i) {
+        for (unsigned int i = 0; i < tiles.length(); ++i) {
             tilebag->addBack(tiles.at(i));
         }
         result = true;
@@ -48,7 +48,7 @@ bool GameFileHandler::loadTileBag(string file, LinkedList* tilebag) {
 bool GameFileHandler::loadMosaic(string file, Mosaic mosaic) {
     bool result = false;
     std::ifstream inFile;
-    inFile.open(DEFAULT_MOSAIC_FILE);
+    inFile.open(file);
     if (inFile.good()) {
         char ch;
         for (int i = 0; i < MOSAIC_DIM; ++i) {
