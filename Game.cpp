@@ -58,10 +58,10 @@ void Game::addToCentreFactory(int factoryNo){
 }
 
 bool Game::roundOver() {
-    bool result = false;
+    bool result = true;
     for (int i = 0; i < NO_OF_FACTORIES && !result; ++i) {
         if (!factories[i]->empty()) {
-            result = true;
+            result = false;
         }
     }
     return result;
@@ -108,5 +108,17 @@ bool Game::checkForFirstPlayerTile() {
             result = true;
         }
     } 
+    return result;
+}
+
+int Game::removeFromFactory(int factoryNo, Tile tile) {
+    int result = 0;
+    vector<Tile>::iterator it;
+    for(it = factories[factoryNo]->begin(); it != factories[factoryNo]->end(); ++it)    {
+        if (*it == tile) {
+            factories[factoryNo]->erase(it);
+            ++result;
+        }
+    }
     return result;
 }

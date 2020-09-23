@@ -28,19 +28,19 @@ int LinkedList::getSize() const
    return this->size;
 }
 
-void LinkedList::addFront(Tile value)
-{
-   Node *toAdd = new Node(value, nullptr);
-   if (head == nullptr)
-   {
-      head = toAdd;
-   }
-   else
-   {
-      head->prev = toAdd;
-   }
-   ++size;
-}
+// void LinkedList::addFront(Tile value)
+// {
+//    Node *toAdd = new Node(value, nullptr);
+//    if (head == nullptr)
+//    {
+//       head = toAdd;
+//    }
+//    else
+//    {
+//       head->prev = toAdd;
+//    }
+//    ++size;
+// }
 
 void LinkedList::addBack(Tile value)
 {
@@ -48,41 +48,36 @@ void LinkedList::addBack(Tile value)
 
    if (tail == nullptr)
    {
-      tail = toAdd;
+      head = toAdd;
    }
    else
    {
-      Node *current = tail;
-      while (current->prev != nullptr)
-      {
-         current = current->prev;
-      }
-
-      current->prev = toAdd;
+      tail->next = toAdd;
    }
+   tail = toAdd;
    ++size;
 }
 
-void LinkedList::removeBack()
-{
-   if (tail != nullptr)
-   {
-      Node *toDelete = head;
-      tail = tail->prev;
+// void LinkedList::removeBack()
+// {
+//    if (tail != nullptr)
+//    {
+//       Node *toDelete = head;
+//       tail = tail->prev;
 
-      if (tail == nullptr)
-      {
-         head = nullptr;
-      }
-      else
-      {
-         tail->next = nullptr;
-      }
+//       if (tail == nullptr)
+//       {
+//          head = nullptr;
+//       }
+//       else
+//       {
+//          tail->next = nullptr;
+//       }
 
-      delete toDelete;
-      --size;
-   }
-}
+//       delete toDelete;
+//       --size;
+//    }
+// }
 
 Tile LinkedList::removeFront()
 {
@@ -91,16 +86,10 @@ Tile LinkedList::removeFront()
    {
       Node *toDelete = head;
       tile = head->value;
-      head = head->next;
-
-      if (head == nullptr)
-      {
+      if (tail == toDelete) {
          tail = nullptr;
       }
-      else
-      {
-         head->prev = nullptr;
-      }
+      head = head->next;
       delete toDelete;
       --size;
    }
@@ -108,18 +97,17 @@ Tile LinkedList::removeFront()
    return tile;
 }
 
-   std::string LinkedList::toString()
+std::string LinkedList::toString()
+{
+   std::string result;
+   Node* current = head;
+   while( current != nullptr)
    {
-      std::string result;
-      Node* current = head;
-      while( current != nullptr)
-      {
-         Node* next = current->next;
-         result += std::to_string(current->value) + " ";
-         current = next;
-      }
-      return result;
+      result += std::string(1, current->value) + " ";
+      current = current->next;
    }
+   return result;
+}
 
 void LinkedList::clear()
 {

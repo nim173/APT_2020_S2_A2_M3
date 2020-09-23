@@ -41,12 +41,11 @@ void GameHandler::playNewGame() {
         bool eof = false;
         int j = NO_OF_PLAYERS;
         for (int i = 0; i < NO_OF_ROUNDS && !eof; ++i) {
-            // TODO - player with f starts first
             cout << endl << "=== START OF ROUND ===" << endl;
-            // while (!newGame->roundOver() && !eof) {
-            //     eof = playTurn(j % NO_OF_PLAYERS, newGame);
-            //     ++j;
-            // }
+            while (newGame->roundOver() && !eof) {
+                eof = playTurn(j % NO_OF_PLAYERS, newGame);
+                ++j;
+            }
             if (!eof) {
                 cout << endl << "===  END OF ROUND  ===" << endl;
                 cout << endl << "===  ROUND RESULT  ===" << endl;
@@ -61,8 +60,7 @@ void GameHandler::playNewGame() {
 
         if (!eof) {
             cout << endl << "====   GAME OVER  ====" << endl;
-            // Scoring - TODO
-            // printGameResults();
+            printGameResults();
         } // EOF, handled in main menu
         delete newGame;
     } // players added successfully
@@ -95,10 +93,10 @@ bool GameHandler::playTurn(int playerNo, Game* game) {
 
     if (result) {
         // remove tile(s) from relevant factory, obtain number of tiles removed
-        // int numTilesToAdd = game->removeFromFactory(factoryNo, tile);
+        int numTilesToAdd = game->removeFromFactory(factoryNo, tile);
 
         // add tile(s) to player storage row (and/or floor line)
-        // players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
+        players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
 
         // handle 'f' tile if specified factory is the centre factory (0)
         // if first element of centre factory is 'F', add f to floor line of player
