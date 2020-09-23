@@ -29,28 +29,28 @@ void Game::populateFactories(LinkedList* tilebag) {
     }
 }
 
-int Game::removeFromFactory(int factoryNo, Tile tile){
-    int toRemove[5] = {0};
-    int count = 0;
+// int Game::removeFromFactory(int factoryNo, Tile tile){
+//     int toRemove[5] = {0};
+//     int count = 0;
 
-    for(int i=0 ; i < (factories[factoryNo])->size(); i++){
-        if((factories[factoryNo]->at(i)) == tile){
-            toRemove[count] = i;
-            count++;
-        }
-    }
+//     for(int i=0 ; i < (factories[factoryNo])->size(); i++){
+//         if((factories[factoryNo]->at(i)) == tile){
+//             toRemove[count] = i;
+//             count++;
+//         }
+//     }
 
-    for(int i = 0; i< count; i++)
-    {
-        factories[factoryNo]->erase(factories[factoryNo]->begin() + toRemove[i]);
-    }
-    //return how many tiles were found.
-    return count;
-}
+//     for(int i = 0; i< count; i++)
+//     {
+//         factories[factoryNo]->erase(factories[factoryNo]->begin() + toRemove[i]);
+//     }
+//     //return how many tiles were found.
+//     return count;
+// }
 
 //move all tiles in a factory to the center
 void Game::addToCentreFactory(int factoryNo){
-    for(int i = 0; i< (factories[factoryNo])->size(); i++){
+    for(unsigned int i = 0; i< (factories[factoryNo])->size(); i++){
         factories[CENTER_FACTORY]->push_back(factories[factoryNo]->at(i));
     }
     //after adding all items to center, clear from factory.
