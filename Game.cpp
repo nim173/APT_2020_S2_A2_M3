@@ -6,7 +6,7 @@
 Game::Game(LinkedList* tilebag) {
     // initialize factories
     for (int i = 0; i < NO_OF_FACTORIES; ++i) {
-        factories[i] = new vector<Tile>(FACTORY_MAX_SIZE);
+        factories[i] = new vector<Tile>();
     }
     populateFactories(tilebag);
 }
@@ -20,7 +20,7 @@ Game::~Game() {
 
 void Game::populateFactories(LinkedList* tilebag) {
     // add first-player tile to centre factory
-    factories[0]->push_back('F');
+    factories[CENTER_FACTORY]->push_back('F');
 
     for (int i = 1; i < NO_OF_FACTORIES; ++i) {
         for (int j = 0; j < FACTORY_MAX_SIZE; ++j) {
@@ -59,9 +59,11 @@ void Game::addToCentreFactory(int factoryNo){
 
 bool Game::roundOver() {
     bool result = true;
-    for (int i = 0; i < NO_OF_FACTORIES && !result; ++i) {
+    for (int i = 0; i < NO_OF_FACTORIES; ++i) {
         if (!factories[i]->empty()) {
             result = false;
+            // stop the loop
+            i = NO_OF_FACTORIES;
         }
     }
     return result;
@@ -78,7 +80,7 @@ bool Game::validateTurn(int factoryNo, Tile tile, string* errorMessage) {
             ++i;
         }
         if (!valid) {
-            *errorMessage += "No " + std::to_string(tile) + " tiles in factory" 
+            *errorMessage += "No " + std::string(1, tile) + " tiles in factory " 
                           + std::to_string(factoryNo) + "\n";
         }
     } else {
@@ -93,7 +95,7 @@ std::string Game::printFactories() {
         result += std::to_string(i) + ": ";
 
         for (unsigned int j = 0; j < factories[i]->size(); ++j) {
-            result += factories[i]->at(j) + " ";
+            result += std::string(1, factories[i]->at(j)) + " ";
         }
 
         result += "\n";
@@ -105,6 +107,7 @@ bool Game::checkForFirstPlayerTile() {
     bool result = false;
     if (!factories[0]->empty()) {
         if (factories[0]->at(0) == FIRST_PLAYER_TILE) {
+            factories[0]->erase(factories[0]->begin());
             result = true;
         }
     } 
@@ -117,8 +120,13 @@ int Game::removeFromFactory(int factoryNo, Tile tile) {
     for(it = factories[factoryNo]->begin(); it != factories[factoryNo]->end(); ++it)    {
         if (*it == tile) {
             factories[factoryNo]->erase(it);
+            --it;
             ++result;
         }
+    }
+    // add the remaining tiles in this factory to centre factory
+    if (factoryNo != CENTER_FACTORY) {
+        addToCentreFactory(factoryNo);
     }
     return result;
 }

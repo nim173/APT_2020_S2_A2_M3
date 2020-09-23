@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <limits>
 #include "GameHandler.h"
 
 using std::cout;
@@ -35,6 +36,8 @@ int main(void) {
             loop = false;
          } else {
             cout << "Invalid input" << endl;
+            cin.clear();
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
          }
       } // if not EOF
       if (cin.eof()) {
