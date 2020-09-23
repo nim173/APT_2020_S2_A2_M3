@@ -44,8 +44,17 @@ int Game::removeFromFactory(int factoryNo, Tile tile){
     {
         factories[factoryNo]->erase(factories[factoryNo]->begin() + toRemove[i]);
     }
-
+    //return how many tiles were found.
     return count;
+}
+
+//move all tiles in a factory to the center
+void Game::addToCentreFactory(int factoryNo){
+    for(int i = 0; i< (factories[factoryNo])->size(); i++){
+        factories[CENTER_FACTORY]->push_back(factories[factoryNo]->at(i));
+    }
+    //after adding all items to center, clear from factory.
+    factories[factoryNo]->clear();
 }
 
 bool Game::roundOver() {
