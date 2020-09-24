@@ -41,9 +41,9 @@ void GameFileHandler::saveGame(string fileName, Player *players[NO_OF_PLAYERS], 
            }
        }
 
-   }while ((file.fail() && !newGame) || !file.fail());
+   }while ((file.fail() && !newGame) || !file.is_open());
 
-    if (file.fail())
+    if (newGame==true)
     {
         file << DEFAULT_TILEBAG_FILE << endl;
 
@@ -55,24 +55,7 @@ void GameFileHandler::saveGame(string fileName, Player *players[NO_OF_PLAYERS], 
 
     for (int i = 0; i != turns->size(); i++)
     {
-        file << turns->at(i) << ' ' << endl;
-    }
-}
-
-void GameFileHandler::createFile(string fileName, Player *players[NO_OF_PLAYERS], vector<string> *turns)
-{
-    std::ofstream file;
-    file.open(fileName);
-    file << DEFAULT_TILEBAG_FILE << endl;
-    int arrSize = sizeof(players) / sizeof(players[0]);
-    for (int i = 0; i < arrSize; ++i)
-    {
-        file << players[i]->getName();
-    }
-
-    for (int i = 0; i != turns->size(); i++)
-    {
-        file << turns->at(i) << ' ' << endl;
+        file << turns->at(i) << endl;
     }
 }
 

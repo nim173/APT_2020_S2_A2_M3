@@ -13,7 +13,6 @@ public:
     ~GameFileHandler();
 
     void saveGame(string fileName, Player *players[NO_OF_PLAYERS], vector<string> *turns);
-    void GameFileHandler::createFile(string fileName, Player *players[NO_OF_PLAYERS], vector<string> *turns) void saveTurn(string fileName, string inputFactory, string inputTile, string inputStorageRow);
 
     void loadGame(string fileName);
 
