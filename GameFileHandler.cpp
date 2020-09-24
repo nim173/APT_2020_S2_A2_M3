@@ -6,6 +6,8 @@
 #include "GameFileHandler.h"
 
 using std::endl;
+using std::cout;
+using std::cin;
 using std::string;
 
 GameFileHandler::GameFileHandler()
@@ -16,10 +18,46 @@ GameFileHandler::~GameFileHandler()
 {
 }
 
-// void GameFileHandler::saveGame()
-// {
-//     //call respective methods
-// }
+void GameFileHandler::saveGame(string fileName, Player *players[NO_OF_PLAYERS], vector<string> *turns)
+{
+    std::ofstream file;
+    file.open(fileName);
+    int arrSize = sizeof(players) / sizeof(players[0]);
+    bool newGame = true;
+    char choice = ' ';
+
+   do
+   {
+       if (file.fail())
+       {
+           cout << "File does not exist. Would you like to start a new Game?[Y/N]" << endl;
+           cin >> choice;
+           if (tolower(choice) == 'y')
+           newGame = true;
+           if (tolower(choice == 'n'))
+           {
+               cout << "Enter the filename from which load a game" << endl;
+               cin >> fileName;
+           }
+       }
+
+   }while ((file.fail() && !newGame) || !file.fail());
+
+    if (file.fail())
+    {
+        file << DEFAULT_TILEBAG_FILE << endl;
+
+        for (int i = 0; i < arrSize; ++i)
+        {
+            file << players[i]->getName();
+        }
+    }
+
+    for (int i = 0; i != turns->size(); i++)
+    {
+        file << turns->at(i) << ' ' << endl;
+    }
+}
 
 void GameFileHandler::createFile(string fileName, Player *players[NO_OF_PLAYERS], vector<string> *turns)
 {
@@ -32,18 +70,10 @@ void GameFileHandler::createFile(string fileName, Player *players[NO_OF_PLAYERS]
         file << players[i]->getName();
     }
 
-    for (int i=0; i != turns->size(); i++ )
+    for (int i = 0; i != turns->size(); i++)
     {
-        file <<  turns->at(i)  << ' ' << endl;
+        file << turns->at(i) << ' ' << endl;
     }
-
-}
-
-void GameFileHandler::saveTurn(string file, string inputFactory, string inputTile, string inputStorageRow)
-{
-    std::ifstream inFile;
-    inFile.open(file);
-
 }
 
 void GameFileHandler::loadGame()
