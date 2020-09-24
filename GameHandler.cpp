@@ -38,15 +38,15 @@ void GameHandler::playNewGame() {
         Game* newGame = new Game(tilebag);
 
         // play the game
-        bool eof = false;
+        bool notEOF = true;
         int j = NO_OF_PLAYERS;
-        for (int i = 0; i < NO_OF_ROUNDS && !eof; ++i) {
+        for (int i = 0; i < NO_OF_ROUNDS && notEOF; ++i) {
             cout << endl << "=== START OF ROUND ===" << endl;
-            while (newGame->roundOver() && !eof) {
-                eof = playTurn(j % NO_OF_PLAYERS, newGame);
+            while (!newGame->roundOver() && notEOF) {
+                notEOF = playTurn(j % NO_OF_PLAYERS, newGame);
                 ++j;
             }
-            if (!eof) {
+            if (notEOF) {
                 cout << endl << "===  END OF ROUND  ===" << endl;
                 cout << endl << "===  ROUND RESULT  ===" << endl;
                 endRound();
@@ -58,7 +58,7 @@ void GameHandler::playNewGame() {
             }
         }
 
-        if (!eof) {
+        if (notEOF) {
             cout << endl << "====   GAME OVER  ====" << endl;
             printGameResults();
         } // EOF, handled in main menu
@@ -74,7 +74,8 @@ bool GameHandler::loadGame() {
 }
 
 bool GameHandler::playTurn(int playerNo, Game* game) {
-    cout << "TURN FOR PLAYER: " << players[playerNo]->getName() << endl
+    turns->begin();
+    cout << endl << "TURN FOR PLAYER: " << players[playerNo]->getName() << endl
          << "Factories:" << endl 
          << game->printFactories() << endl
          << endl 
@@ -98,11 +99,15 @@ bool GameHandler::playTurn(int playerNo, Game* game) {
         // add tile(s) to player storage row (and/or floor line)
         players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
 
+        cout << "Turn Successful." << endl;
+
         // handle 'f' tile if specified factory is the centre factory (0)
         // if first element of centre factory is 'F', add f to floor line of player
         if (factoryNo == 0 && game->checkForFirstPlayerTile()) {
-            players[playerNo]->addToFloorLine((Tile)FIRST_PLAYER_TILE, 1);
+            players[playerNo]->addToFloorLine(FIRST_PLAYER_TILE, 1);
+            cout << "Player " << players[playerNo]->getName() << "goes first next round" << endl;
         }
+
     } // not EOF
     return result;
 }
@@ -123,7 +128,7 @@ bool GameHandler::getPlayerTurn(int* factoryNo, Tile* tile, int* storageRow) {
 
     while (invalidTurn) {
         if (cin >> command) {
-            if (command == "turn") {
+            if (command == "turn" || command == "TURN") {
                 if (cin >> inputFactory) {
                     if (inputFactory.compare("0") >= 0 && inputFactory.compare(maxFactoryValue) <= 0) {
                         *factoryNo = std::stoi(inputFactory);
@@ -131,10 +136,14 @@ bool GameHandler::getPlayerTurn(int* factoryNo, Tile* tile, int* storageRow) {
                             if (validTiles.find(inputTile) != string::npos) {
                                 *tile = (Tile)inputTile.at(0);
                                 if (cin >> inputStorageRow) {
-                                    if (inputStorageRow.compare("1") >= 0 && inputStorageRow.compare(maxStorageRowValue) <= 0) {
-                                        *storageRow = std::stoi(inputStorageRow);
+                                    if (inputStorageRow == "broken" || (inputStorageRow.compare("1") >= 0 
+                                        && inputStorageRow.compare(maxStorageRowValue) <= 0)) {
+                                        if (inputStorageRow == "broken") {
+                                            *storageRow = 6;
+                                        } else {
+                                            *storageRow = std::stoi(inputStorageRow);
+                                        }
                                         invalidTurn = false;
-                                        // cout << command << " " << *factory << " " << *tile << " " << *storageRow << endl; 
                                     } else {
                                         // not a valid storage row number (should be bet 1 & maxStorageRowValue)
                                         cout << inputStorageRow << ": invalid storage row number, pick from 1 to " 
@@ -169,7 +178,6 @@ bool GameHandler::getPlayerTurn(int* factoryNo, Tile* tile, int* storageRow) {
 
         if (invalidTurn) {
             if (cin.eof()) {
-                cout << endl << "EOF" <<endl;
                 invalidTurn = false;
                 result = false;
             } else {
@@ -185,15 +193,16 @@ bool GameHandler::getPlayerTurn(int* factoryNo, Tile* tile, int* storageRow) {
 
 bool GameHandler::validateTurn(int playerNo, Game* game, int factoryNo, Tile tile, int storageRow) {
     string errorMessage = "Invalid turn: ";
-    bool result (game->validateTurn(factoryNo, tile, &errorMessage) && 
+    bool result = (game->validateTurn(factoryNo, tile, &errorMessage) && 
             players[playerNo]->validateTurn(tile, storageRow, &errorMessage));
-    cout << errorMessage << endl 
-                << "Enter turn again" << endl
-                << "> ";
+    if (!result) {
+        cout << errorMessage << endl 
+                    << "Enter turn again" << endl
+                    << "> ";
+    }
     return result;
 }
 
-// TODO - handle players having same name
 bool GameHandler::addPlayers() {
     bool result = false;
     
@@ -224,7 +233,7 @@ bool GameHandler::addPlayers() {
 }
 
 void GameHandler::endRound() {
-    cout << endl << "Points Scored" << endl;
+    cout << endl << "Points Scored:" << endl;
     for (int i = 0; i < NO_OF_PLAYERS; ++i) {
         cout << "Player " + players[i]->getName() + ": " 
                 + std::to_string(players[i]->updateScore(defaultMosaicGrid, tilebag)) << endl;

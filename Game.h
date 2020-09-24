@@ -29,8 +29,7 @@ public:
     // returns false if the given factory is empty or if it does not contain the specified tile
     bool validateTurn(int factoryNo, Tile tile, string* errorMessage);
 
-    // returns true if the FIRST_PLAYER_TILE is not allocated to a player
-    // (i.e. it is at the first position of the centre factory [0])
+    // returns true and removes the  FIRST_PLAYER_TILE if it is at the first position of the centre factory
     bool checkForFirstPlayerTile();
 
     std::string printFactories();
