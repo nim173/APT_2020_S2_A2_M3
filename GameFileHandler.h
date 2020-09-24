@@ -12,7 +12,7 @@ public:
     GameFileHandler();
     ~GameFileHandler();
 
-    void saveGame(string fileName, Player *players[NO_OF_PLAYERS], vector<string> *turns);
+    void saveGame(string fileName, Player *players[NO_OF_PLAYERS], vector<string> *turns, bool newGame);
 
     void loadGame(string fileName);
 

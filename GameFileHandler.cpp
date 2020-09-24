@@ -11,43 +11,27 @@ using std::cin;
 using std::string;
 
 GameFileHandler::GameFileHandler()
-{
-}
+{}
 
 GameFileHandler::~GameFileHandler()
+{}
+
+bool checkForFile()
 {
+
 }
 
-void GameFileHandler::saveGame(string fileName, Player *players[NO_OF_PLAYERS], vector<string> *turns)
+void GameFileHandler::saveGame(string fileName, Player *players[NO_OF_PLAYERS], vector<string> *turns, bool newGame)
 {
     std::ofstream file;
     file.open(fileName);
-    int arrSize = sizeof(players) / sizeof(players[0]);
-    bool newGame = true;
     char choice = ' ';
-
-   do
-   {
-       if (file.fail())
-       {
-           cout << "File does not exist. Would you like to start a new Game?[Y/N]" << endl;
-           cin >> choice;
-           if (tolower(choice) == 'y')
-           newGame = true;
-           if (tolower(choice == 'n'))
-           {
-               cout << "Enter the filename from which load a game" << endl;
-               cin >> fileName;
-           }
-       }
-
-   }while ((file.fail() && !newGame) || !file.is_open());
 
     if (newGame==true)
     {
         file << DEFAULT_TILEBAG_FILE << endl;
 
-        for (int i = 0; i < arrSize; ++i)
+        for (int i = 0; i < NO_OF_PLAYERS; ++i)
         {
             file << players[i]->getName();
         }
@@ -57,10 +41,13 @@ void GameFileHandler::saveGame(string fileName, Player *players[NO_OF_PLAYERS], 
     {
         file << turns->at(i) << endl;
     }
+
+    file.close();
 }
 
-void GameFileHandler::loadGame()
+void GameFileHandler::loadGame(string fileName)
 {
+      
 }
 
 bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
