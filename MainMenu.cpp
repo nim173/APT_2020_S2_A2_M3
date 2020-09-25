@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <limits>
 #include "GameHandler.h"
 
 using std::cout;
@@ -24,7 +23,7 @@ int main(void) {
    do {
       show_menu();
       cout << "> ";
-      if (cin >> input) {
+      if (std::getline(cin, input)) {
          if (input == "1") {
             gameHandler->playNewGame();
          } else if (input == "2") {
@@ -36,8 +35,6 @@ int main(void) {
             loop = false;
          } else {
             cout << "Invalid input" << endl;
-            cin.clear();
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
          }
       } // if not EOF
       if (cin.eof()) {

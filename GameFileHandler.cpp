@@ -78,7 +78,7 @@ void GameFileHandler::saveGame(string fileName, LinkedList tileBag, Player *play
         writeFile << *i << std::endl;
     }
 
-    for (int i = 0; i != turns->size(); i++)
+    for (unsigned int i = 0; i != turns->size(); i++)
     {
         writeFile << turns->at(i) << endl;
     }
@@ -91,23 +91,19 @@ void GameFileHandler::loadGame(string fileName)
 {
 }
 
-bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
-{
+bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag) {
     bool result = false;
     std::ifstream inFile;
     inFile.open(file);
-    if (inFile.good())
-    {
+    if (inFile.good()) {
         string tiles;
         std::getline(inFile, tiles);
-        for (unsigned int i = 0; i < tiles.length(); ++i)
-        {
+        for (unsigned int i = 0; i < tiles.length(); ++i) {
             tilebag->addBack(tiles.at(i));
         }
         result = true;
     }
-    else
-    {
+    else {
         // file not found
     }
     inFile.close();

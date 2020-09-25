@@ -100,8 +100,7 @@ bool GameHandler::playTurn(int playerNo, Game *game)
          << "TURN FOR PLAYER: " << players[playerNo]->getName() << endl
          << "Factories:" << endl
          << game->printFactories() << endl
-         << endl
-         << "Mosaic for " + players[playerNo]->getName() << endl
+         <<  "Mosaic for " + players[playerNo]->getName() << ":" << endl
          << players[playerNo]->printPlayerBoard() << endl
          << "> ";
 
@@ -130,7 +129,7 @@ bool GameHandler::playTurn(int playerNo, Game *game)
         if (factoryNo == 0 && game->checkForFirstPlayerTile())
         {
             players[playerNo]->addToFloorLine(FIRST_PLAYER_TILE, 1);
-            cout << "Player " << players[playerNo]->getName() << "goes first next round" << endl;
+            cout << "Player " << players[playerNo]->getName() << " goes first next round" << endl;
         }
 
     } // not EOF
@@ -204,6 +203,8 @@ bool GameHandler::getPlayerTurn(int *factoryNo, Tile *tile, int *storageRow)
                                             *storageRow = std::stoi(inputStorageRow);
                                         }
                                         invalidTurn = false;
+                                        // clear input buffer
+                                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                                     }
                                     else
                                     {
@@ -271,13 +272,11 @@ bool GameHandler::getPlayerTurn(int *factoryNo, Tile *tile, int *storageRow)
     return result;
 }
 
-bool GameHandler::validateTurn(int playerNo, Game *game, int factoryNo, Tile tile, int storageRow)
-{
+bool GameHandler::validateTurn(int playerNo, Game *game, int factoryNo, Tile tile, int storageRow) {
     string errorMessage = "Invalid turn: ";
     bool result = (game->validateTurn(factoryNo, tile, &errorMessage) &&
                    players[playerNo]->validateTurn(tile, storageRow, &errorMessage));
-    if (!result)
-    {
+    if (!result) {
         cout << errorMessage << endl
              << "Enter turn again" << endl
              << "> ";
@@ -285,8 +284,7 @@ bool GameHandler::validateTurn(int playerNo, Game *game, int factoryNo, Tile til
     return result;
 }
 
-bool GameHandler::addPlayers()
-{
+bool GameHandler::addPlayers() {
     bool result = false;
 
     cout << endl
@@ -295,24 +293,18 @@ bool GameHandler::addPlayers()
     cout << "Enter a name for player 1" << endl;
     string player1Name;
     cout << "> ";
-    if (cin >> player1Name)
-    {
+    if (std::getline(cin, player1Name)) {
         cout << endl
              << "Enter a name for player 2" << endl
              << "> ";
         string player2Name;
-        do
-        {
-            if (cin >> player2Name)
-            {
-                if (player1Name != player2Name)
-                {
+        do {
+            if (std::getline(cin, player2Name)) {
+                if (player1Name != player2Name) {
                     players[0] = new Player(player1Name);
                     players[1] = new Player(player2Name);
                     result = true;
-                }
-                else
-                {
+                } else {
                     cout << "Error: Players cannot have the same name" << endl
                          << endl
                          << "Enter a name for player 2" << endl
@@ -327,65 +319,58 @@ bool GameHandler::addPlayers()
     return result;
 }
 
-void GameHandler::endRound()
-{
+void GameHandler::endRound() {
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
+        cout << "Mosaic for Player " << players[i]->getName() << ":" << endl <<
+                players[i]->printPlayerBoard() << endl;
+    }
     cout << endl
          << "Points Scored:" << endl;
-    for (int i = 0; i < NO_OF_PLAYERS; ++i)
-    {
-        cout << "Player " + players[i]->getName() + ": " + std::to_string(players[i]->updateScore(defaultMosaicGrid, tilebag)) << endl;
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
+        int points = players[i]->updateScore(defaultMosaicGrid, tilebag);
+        cout << "Player " + players[i]->getName() + ": " << std::to_string(points) << endl <<
+            players[i]->printPlayerBoard() << endl;
     }
     printPlayerPoints("Total Points");
 }
 
-void GameHandler::printGameResults()
-{
+void GameHandler::printGameResults() {
     printPlayerPoints("Final Scores:");
 
     int max = 0;
     bool drawn = false;
-    for (int i = 1; i < NO_OF_PLAYERS; ++i)
-    {
-        if (players[i]->getPoints() > players[max]->getPoints())
-        {
+    for (int i = 1; i < NO_OF_PLAYERS; ++i) {
+        if (players[i]->getPoints() > players[max]->getPoints()) {
             max = i;
             drawn = false;
         }
-        else if (players[i]->getPoints() == players[max]->getPoints())
-        {
+        else if (players[i]->getPoints() == players[max]->getPoints()) {
             drawn = true;
         }
     }
 
     string message;
-    if (drawn == false)
-    {
+    if (drawn == false) {
         message = "Player " + players[max]->getName() + " wins!";
     }
-    else
-    {
+    else {
         message = "Game drawn!";
     }
     cout << message << endl;
 }
 
-void GameHandler::printPlayerPoints(string message)
-{
+void GameHandler::printPlayerPoints(string message) {
     cout << endl
          << message << endl;
-    for (int i = 0; i < NO_OF_PLAYERS; ++i)
-    {
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
         cout << "Player " + players[i]->getName() + ": " + std::to_string(players[i]->getPoints()) << endl;
     }
 }
 
-int GameHandler::resetGameBoard(Game *game)
-{
+int GameHandler::resetGameBoard(Game *game) {
     int result = -1;
-    for (int i = 0; i < NO_OF_PLAYERS; ++i)
-    {
-        if (players[i]->resetFloorline(tilebag))
-        {
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
+        if (players[i]->resetFloorline(tilebag)) {
             result = i;
         }
     }

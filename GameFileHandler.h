@@ -20,9 +20,9 @@ public:
 
     void loadGame(string fileName);
 
-    bool loadTileBag(DEFAULT_TILEBAG_FILE, LinkedList tilebag);
+    bool loadTileBag(string file, LinkedList* tilebag);
 
-    void loadMosaic(DEFAULT_MOSAIC_FILE, Tile *defaultMosaicGrid);
+    bool loadMosaic(string file, Mosaic defaultMosaicGrid);
 
 private:
 };
