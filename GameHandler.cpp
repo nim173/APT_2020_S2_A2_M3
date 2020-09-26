@@ -86,7 +86,11 @@ void GameHandler::playNewGame()
 
 bool GameHandler::loadGame()
 {
-    return false;
+    string fileName = " ";
+    cout << "Enter the filename from which load a game" << endl;
+    cout << "> ";
+    cin >> fileName;
+    fileHandler->loadGame(fileName);
 }
 
 bool GameHandler::playTurn(int playerNo, Game *game)
@@ -142,12 +146,14 @@ bool GameHandler::getPlayerTurn(int *factoryNo, Tile *tile, int *storageRow)
     string maxFactoryValue = std::to_string(NO_OF_FACTORIES - 1);
     string validTiles = VALID_TURN_TILES;
     string maxStorageRowValue = std::to_string(MOSAIC_DIM);
-    string fileName = " ";
+    string fileName = " ", choice = " ";
 
     string command;
 
     bool result = true;
     bool invalidTurn = result;
+    bool fileNotFound = false, newGame = false;
+    ;
 
     while (invalidTurn)
     {
@@ -155,32 +161,23 @@ bool GameHandler::getPlayerTurn(int *factoryNo, Tile *tile, int *storageRow)
         {
             if (command == "save" || command == "SAVE")
             {
-                if (cin >> fileName)
+                do
                 {
-                    std::ofstream file;
-                    file.open(fileName);
-                    bool newGame = true;
-                    char choice = ' ';
-
-                    do
+                    if (cin >> fileName)
                     {
-                        if (file.fail())
+                        fileNotFound = fileHandler->saveFileCHeck(fileName);
+                        if (!fileNotFound)
                         {
-                            cout << "File does not exist. Would you like to create a new save?[Y/N]" << endl;
-                            cin >> choice;
-                            if (tolower(choice) == 'y')
-                                newGame = true;
-                            if (tolower(choice == 'n'))
-                            {
-                                cout << "Please Enter the filename from which load a game" << endl;
-                                cin >> fileName;
-                            }
+                            fileHandler->saveGame(fileName, *tilebag, players, turns);
                         }
+                        else
+                        {
+                            cout << "File already exists. Please enter new name" << endl;
+                            cin >> fileName;
+                        }
+                    }
 
-                    } while ((file.fail() && !newGame) || !file.is_open());
-
-                    fileHandler->saveGame(fileName, players, turns, newGame);
-                }
+                } while (!fileNotFound);
             }
             if (command == "turn" || command == "TURN")
             {
