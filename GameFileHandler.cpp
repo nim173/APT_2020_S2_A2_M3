@@ -92,6 +92,7 @@ void GameFileHandler::loadGame(string fileName)
 }
 
 bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag) {
+    tilebag->clear();
     bool result = false;
     std::ifstream inFile;
     inFile.open(file);

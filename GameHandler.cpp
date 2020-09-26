@@ -19,8 +19,7 @@ GameHandler::GameHandler()
     this->fileHandler = new GameFileHandler();
 
     // initialize default tilebag
-    tilebag = new LinkedList();
-    fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag); // TODO - ERROR CHECKING
+    this->tilebag = new LinkedList();
 
     // initialize defaultMosaic
     defaultMosaicGrid = new Tile *[MOSAIC_DIM];
@@ -40,6 +39,8 @@ void GameHandler::playNewGame()
     {
         cout << endl
              << "Let's Play!" << endl;
+        
+        fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag); // TODO - ERROR CHECKING
         Game *newGame = new Game(tilebag);
 
         // play the game
