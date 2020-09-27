@@ -1,6 +1,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <iostream>
 #include "Game.h"
 #include "Types.h"
 #include "GameFileHandler.h"
@@ -20,15 +21,16 @@ GameFileHandler::~GameFileHandler()
 
 bool GameFileHandler::loadFileCheck(string fileName)
 {
-    std::ofstream file;
+    std::ifstream file;
     file.open(fileName);
-    bool newGame = true;
+    bool result = false;
 
-    if (file.fail())
+    if (file.good())
     {
+        result = true;
     }
 
-    return newGame;
+    return result;
 }
 
 bool GameFileHandler::saveFileCHeck(string fileName)
@@ -51,6 +53,7 @@ bool GameFileHandler::saveFileCHeck(string fileName)
     {
         cout << "file doesn't exist";
     }
+    ifile.close();
     return fileNotFound;
 }
 
@@ -117,44 +120,65 @@ void GameFileHandler::toCharString(string fileName, char arr[], int size)
     }
 }
 
-void GameFileHandler::loadGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns)
+bool GameFileHandler::loadGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns)
 {
-    int counter = 1;
-    std::ifstream readFile(fileName);
-    std::ofstream tileBagFile(fileName + "initial.tilebag");
+    bool valid = true;;
+    std::ifstream readFile;
+    std::ofstream tileBagFile;
     readFile.open(fileName);
-    if (readFile.good())
-    {
-        do
-        {
-            string sLine;
-            getline(readFile, sLine);
-            if (counter == 1)
-            {
-                loadTileBag(fileName, tileBag);
-                //saving initial tileBag
-                tileBagFile.open(fileName + "initial.tilebag");
-                tileBagFile << sLine;
-                tileBagFile.close();
-            }
-            if (counter == 2 || counter == 3)
-            {
-                if (counter == 2)
-                {
-                    players[0] = new Player(sLine);
-                }
-                if (counter == 3)
-                {
-                    players[1] = new Player(sLine);
+    string line;
+    char ch;
+    string validTiles = VALID_TURN_TILES;
+    if (readFile.good()) {
+        // read tilebag
+        readFile.get(ch);
+        while (ch != '\n' && valid && !readFile.eof()) {
+            if (validTiles.find(ch) != string::npos) {
+                tileBag->addBack(ch);
+            } else {
+                if (ch != '\r') {
+                    cout << endl <<"Error: Invalid characters found in tilebag" << endl;
+                    valid = false;
                 }
             }
-            if (counter > 3)
-            {
+            readFile.get(ch);
+        }
+
+        if (valid && tileBag->getSize() < TILEBAG_MIN_SIZE) {
+            cout << endl << "Error: Tilebag is too small, should be atleast 100" << endl;
+            valid = false;
+        }
+
+        // read player names
+        if (valid) {
+            for (int i = 0; i < NO_OF_PLAYERS && valid; ++i) {
+                if (std::getline(readFile, line)) {
+                    if (players[i] != nullptr) {
+                        delete players[i];
+                    }
+                    players[i] = new Player(line);
+                } else {
+                    cout << endl <<"Error: Can't read player " << i+1 << " name" << endl;
+                    valid = false;
+                }
             }
-        } while (!readFile.eof());
+        }
+
+        // read turns
+        if(valid) {
+            if (turns != nullptr) {
+                turns->clear();
+            }
+            while(!readFile.eof()) {
+                if (std::getline(readFile, line)) {
+                    turns->push_back(line);
+                }
+            }
+        }
     }
 
     readFile.close();
+    return valid;
 }
 
 bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
@@ -210,3 +234,4 @@ bool GameFileHandler::loadMosaic(string file, Mosaic mosaic)
     inFile.close();
     return result;
 }
+

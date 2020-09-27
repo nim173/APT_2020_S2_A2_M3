@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include "Player.h"
+#include "Types.h"
 
 using std::vector;
 
@@ -131,7 +132,7 @@ bool Player::validateTurn(Tile tile, int row, string* errorMessage) {
     return valid;
 }
 
-void Player::addToStorageRow(int row, Tile tile, int numTilesToAdd) {
+int Player::addToStorageRow(int row, Tile tile, int numTilesToAdd) {
     if (row != 6) {
         for (int i = 0; i < row && numTilesToAdd > 0; ++i) {
             if (storageRow[row-1]->at(i) == EMPTY_SLOT) {
@@ -140,14 +141,15 @@ void Player::addToStorageRow(int row, Tile tile, int numTilesToAdd) {
             }
         }
     }
-    addToFloorLine(tile, numTilesToAdd);
+    return addToFloorLine(tile, numTilesToAdd);
 }
 
-void Player::addToFloorLine(Tile tile, int numTilesToAdd) {
-    while (numTilesToAdd > 0) {
+int Player::addToFloorLine(Tile tile, int numTilesToAdd) {
+    while (numTilesToAdd > 0 && floorLine->getSize() < FLOOR_LINE_MAX_SIZE) {
         floorLine->addBack(tile);
         --numTilesToAdd;
     }
+    return numTilesToAdd;
 }
 
 void Player::addToWall(int row, int col, Tile tile) {

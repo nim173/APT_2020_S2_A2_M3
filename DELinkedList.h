@@ -35,16 +35,6 @@ public:
    void addBack(Tile value);
 
    /**
-    * Add the value to the front of the Linked List
-    */
-   void addFront(Tile value);
-
-   /**
-    * Remove the value at the back of the Linked List
-    */
-   void removeBack();
-
-   /**
     * Remove the value at the front of the Linked List
     */
    Tile removeFront();

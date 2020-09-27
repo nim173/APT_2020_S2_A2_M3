@@ -13,7 +13,7 @@ public:
     GameHandler();
 
     void playNewGame();
-    bool loadGame();
+    void loadGame();
 
 private:
     Player* players[NO_OF_PLAYERS];

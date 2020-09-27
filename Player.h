@@ -27,11 +27,12 @@ public:
     bool validateTurn(Tile tile, int row, string* errorMessage);
 
     // adds the specified number of tiles to the specified storage row
-    // adds excess tiles to the floor line (broken tiles)
-    void addToStorageRow(int row, Tile tile, int numTilesToAdd);
+    // adds excess tiles to the floor line (broken tiles), 
+    // returns the # of remaining tiles if floorline is full
+    int addToStorageRow(int row, Tile tile, int numTilesToAdd);
 
     // add broken tiles to floor line
-    void addToFloorLine(Tile tile, int numTilesToAdd);
+    int addToFloorLine(Tile tile, int numTilesToAdd);
 
     // add specified tile to given position in mosaic
     void addToWall(int row, int col, Tile tile);
@@ -50,8 +51,6 @@ private:
     vector<Tile>* storageRow[MOSAIC_DIM];
     Mosaic wall;
 
-    // the floor line would not have a max size, as box-lid is out of scope and to keep track of the FIRST_PLAYER_TILE
-    // for scoring only the first 7 tiles would be counted as per game rules
     LinkedList* floorLine;
 };
 

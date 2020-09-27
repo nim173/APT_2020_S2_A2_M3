@@ -18,7 +18,7 @@ public:
 
     void saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns, bool newGame);
 
-    void loadGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns);
+    bool loadGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns);
 
     bool loadTileBag(string file, LinkedList* tilebag);
 

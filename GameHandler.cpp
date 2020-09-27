@@ -85,37 +85,23 @@ void GameHandler::playNewGame()
     }
 }
 
-bool GameHandler::loadGame()
-{
-    string fileName = " ", choice = " ";
-    bool fileNotFound = true, exitLoad = false;
-
-    do
-    {
-        cout << "Enter the filename from which load a game" << endl;
-        cout << "> ";
-        cin >> fileName;
-        fileNotFound = fileHandler->loadFileCheck(fileName);
-        if (!fileNotFound)
-        {
-            fileHandler->loadGame(fileName, tilebag, players, turns);
+void GameHandler::loadGame() {
+    string fileName;
+    cout << endl << "Enter the filename from which to load a game" << endl;
+    cout << "> ";
+    if (std::getline(cin, fileName)) {
+        if (!fileHandler->loadFileCheck(fileName)) {
+            cout << endl << "File does not exist." << endl;
+        } else {
+            if (fileHandler->loadGame(fileName, tilebag, players, turns)) {
+                // simulate turns
+            }
         }
-        if (fileNotFound)
-        {
-            cout << "File does not exist. Would you like to try again? [y/n]" << endl;
-            cout << "> ";
-            cin >> choice;
-            if (choice == "n" || choice == "N")
-                exitLoad = true;
-        }
-    } while (fileNotFound && !exitLoad);
-
-    return fileNotFound;
+    }
 }
 
 bool GameHandler::playTurn(int playerNo, Game *game)
 {
-    turns->begin();
     cout << endl
          << "TURN FOR PLAYER: " << players[playerNo]->getName() << endl
          << "Factories:" << endl
@@ -139,11 +125,6 @@ bool GameHandler::playTurn(int playerNo, Game *game)
         // remove tile(s) from relevant factory, obtain number of tiles removed
         int numTilesToAdd = game->removeFromFactory(factoryNo, tile);
 
-        // add tile(s) to player storage row (and/or floor line)
-        players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
-
-        cout << "Turn Successful." << endl;
-
         // handle 'f' tile if specified factory is the centre factory (0)
         // if first element of centre factory is 'F', add f to floor line of player
         if (factoryNo == 0 && game->checkForFirstPlayerTile())
@@ -152,6 +133,15 @@ bool GameHandler::playTurn(int playerNo, Game *game)
             cout << "Player " << players[playerNo]->getName() << " goes first next round" << endl;
         }
 
+        // add tile(s) to player storage row (and/or floor line)
+        int num = players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
+
+        // add to tilebag if floor line of player is full
+        for (int i = 0; i < num; ++i) {
+            tilebag->addBack(tile);
+        }
+
+        cout << "Turn Successful." << endl;
     } // not EOF
     return result;
 }
@@ -206,8 +196,7 @@ bool GameHandler::getPlayerTurn(int *factoryNo, Tile *tile, int *storageRow)
                     //OR
                     //exists if file is found and user doesnt want a new game.
                 } while ((!fileNotFound && newGame) || (!fileNotFound && !newGame));
-            }
-            if (command == "turn" || command == "TURN")
+            } else if (command == "turn" || command == "TURN")
             {
                 if (cin >> inputFactory)
                 {
@@ -273,7 +262,8 @@ bool GameHandler::getPlayerTurn(int *factoryNo, Tile *tile, int *storageRow)
             {
                 // invalid command - turn <factory> <tile-code> <storage row>
                 cout << command << ": invalid command, use the following format" << endl
-                     << "turn <factory> <tile-code> <storage row>" << endl;
+                     << "'turn <factory> <tile-code> <storage row>'" << endl
+                     << "or 'save <filename>' to save game";
             }
         }
         else
