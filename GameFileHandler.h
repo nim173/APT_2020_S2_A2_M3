@@ -16,13 +16,16 @@ public:
 
     bool saveFileCHeck(string fileName);
 
-    void saveGame(string fileName, LinkedList tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns);
+    void saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns, bool newGame);
 
-    void loadGame(string fileName);
+    void loadGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns);
 
     bool loadTileBag(string file, LinkedList* tilebag);
 
     bool loadMosaic(string file, Mosaic defaultMosaicGrid);
+
+    void toCharString(string fileName, char arr[], int size);
+
 
 private:
 };
