@@ -2,6 +2,7 @@
 #define GAME_HANDLER
 
 #include <string>
+#include <sstream>
 #include "Types.h"
 #include "Player.h"
 #include "Game.h"
@@ -13,7 +14,22 @@ public:
     GameHandler();
 
     void playNewGame();
+
     void loadGame();
+    
+    void playGame(int startingRound, int startingPlayer);
+
+    // returns false if EOF encountered while getting user input
+    void playTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame);
+
+    // updates player scores and prints round results
+    void endRound(bool newGame);
+
+    // repopulates factories and clears player floor line
+    // returns the the index of the starting player for the next round
+    int resetGameBoard();
+
+    void printGameResults();
 
 private:
     Player* players[NO_OF_PLAYERS];
@@ -21,6 +37,8 @@ private:
     LinkedList* tilebag;
 
     vector<string>* turns; 
+
+    Game* currentGame;
 
     GameFileHandler* fileHandler;
 
@@ -32,25 +50,15 @@ private:
 
     bool saveGame();
 
-    // returns false if EOF encountered while getting user input
-    bool playTurn(int playerNo, Game* game);
-
     // gets turn input and does input error checking (does not check for game rules)
     // returns false if EOF encountered
-    bool getPlayerTurn(int* factoryNo, Tile* tile, int* storageRow);
+    bool getPlayerTurn(std::stringstream* stream, int *factoryNo, Tile *tile, int *storageRow, bool newGame);
 
-    bool validateTurn(int playerNo, Game* game, int factoryNo, Tile tile, int storageRow);
-
-    // updates player scores and prints round results
-    void endRound();
-    
-    // repopulates factories and clears player floor line
-    // returns the the index of the starting player for the next round
-    int resetGameBoard(Game* game);
+    bool validateTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame);
     
     void printPlayerPoints(string message);
 
-    void printGameResults();
+    void endGame();
 };
 
 #endif // GAME_HANDLER

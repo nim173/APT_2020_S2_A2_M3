@@ -2,6 +2,7 @@
 #include <string>
 #include <limits>
 #include <fstream>
+#include <sstream>
 #include "GameHandler.h"
 #include "GameFileHandler.h"
 #include "Game.h"
@@ -18,8 +19,9 @@ GameHandler::GameHandler()
     // initialize file handler
     this->fileHandler = new GameFileHandler();
 
-    // initialize default tilebag
-    this->tilebag = new LinkedList();
+    tilebag = new LinkedList();
+
+    turns = new vector<string>();
 
     // initialize defaultMosaic
     defaultMosaicGrid = new Tile *[MOSAIC_DIM];
@@ -28,9 +30,6 @@ GameHandler::GameHandler()
         defaultMosaicGrid[i] = new Tile[MOSAIC_DIM];
     }
     fileHandler->loadMosaic(DEFAULT_MOSAIC_FILE, defaultMosaicGrid); // TODO - ERROR CHECKING
-
-    // initialize turns
-    turns = new vector<string>();
 }
 
 void GameHandler::playNewGame()
@@ -41,43 +40,13 @@ void GameHandler::playNewGame()
              << "Let's Play!" << endl;
 
         fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag); // TODO - ERROR CHECKING
-        Game *newGame = new Game(tilebag);
+
+        currentGame = new Game(tilebag);
 
         // play the game
-        bool notEOF = true;
-        int j = NO_OF_PLAYERS;
-        for (int i = 0; i < NO_OF_ROUNDS && notEOF; ++i)
-        {
-            cout << endl
-                 << "=== START OF ROUND ===" << endl;
-            while (!newGame->roundOver() && notEOF)
-            {
-                notEOF = playTurn(j % NO_OF_PLAYERS, newGame);
-                ++j;
-            }
-            if (notEOF)
-            {
-                cout << endl
-                     << "===  END OF ROUND  ===" << endl;
-                cout << endl
-                     << "===  ROUND RESULT  ===" << endl;
-                endRound();
+        playGame(0, NO_OF_PLAYERS);
 
-                // reset game board for all rounds except the last
-                if (i != NO_OF_ROUNDS - 1)
-                {
-                    j = resetGameBoard(newGame);
-                }
-            }
-        }
-
-        if (notEOF)
-        {
-            cout << endl
-                 << "====   GAME OVER  ====" << endl;
-            printGameResults();
-        } // EOF, handled in main menu
-        delete newGame;
+        endGame();
     } // players added successfully
     else
     {
@@ -85,218 +54,266 @@ void GameHandler::playNewGame()
     }
 }
 
+void GameHandler::playGame(int startingRound, int startingPlayer)
+{
+    bool notEOF = true;
+    int j = startingPlayer;
+
+    for (int i = startingRound; i < NO_OF_ROUNDS && notEOF; ++i)
+    {
+        if (i != startingRound)
+        {
+            cout << endl
+                 << "=== START OF ROUND ===" << endl;
+        }
+        while (!currentGame->roundOver() && notEOF) {
+            cout << endl
+                 << "TURN FOR PLAYER: " << players[j % NO_OF_PLAYERS]->getName() << endl
+                 << "Factories:" << endl
+                 << currentGame->printFactories() << endl
+                 << "Mosaic for " << players[j % NO_OF_PLAYERS]->getName() << ":" << endl
+                 << players[j % NO_OF_PLAYERS]->printPlayerBoard() << endl
+                 << "> ";
+
+            int factoryNo;
+            Tile tile;
+            int storageRow;
+
+            string input;
+            bool result = true;
+            do
+            {
+                factoryNo = -1;
+                tile = EMPTY_SLOT;
+                storageRow = -1;
+                if (std::getline(cin, input)) {
+                    std::stringstream stream(input);
+                    result = getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, true);
+                    if (result) {
+                        result = validateTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, true);
+                    }
+                } else {
+                    notEOF = false;
+                }
+            } while (notEOF && !result);
+            if (notEOF)
+            {
+                playTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, true);
+                ++j;
+            }
+        }
+        if (notEOF)
+        {
+            cout << endl
+                 << "===  END OF ROUND  ===" << endl;
+            cout << endl
+                 << "===  ROUND RESULT  ===" << endl;
+            endRound(true);
+
+            // reset game board for all rounds except the last
+            if (i != NO_OF_ROUNDS - 1)
+            {
+                j = resetGameBoard();
+            }
+        }
+    }
+
+    if (notEOF)
+    {
+        cout << endl
+             << "====   GAME OVER  ====" << endl;
+        printGameResults();
+    } // EOF, handled in main menu
+}
+
+void GameHandler::endGame() {
+    tilebag->clear();
+    turns->clear();
+
+    delete currentGame;
+    currentGame = nullptr;
+
+    for (int i = 0; i < NO_OF_PLAYERS; ++i)
+    {
+        delete players[i];
+        players[i] = nullptr;
+    }
+}
+
 void GameHandler::loadGame() {
     string fileName;
-    cout << endl << "Enter the filename from which to load a game" << endl;
-    cout << "> ";
+    cout << endl
+         << "Enter the filename from which to load a game" << endl
+         << "> ";
     if (std::getline(cin, fileName)) {
         if (!fileHandler->loadFileCheck(fileName)) {
-            cout << endl << "File does not exist." << endl;
-        } else {
-            if (fileHandler->loadGame(fileName, tilebag, players, turns)) {
-                // simulate turns
+            cout << endl 
+            << "File does not exist." << endl;
+        }
+        else {
+            tilebag = new LinkedList();
+            if (fileHandler->loadGame(fileName, this, tilebag, players, turns)) {
+                // simulate the turns
+                currentGame = new Game(tilebag);
+                int round = 0;
+                int j = NO_OF_PLAYERS;
+
+                int factoryNo = -1;
+                Tile tile = EMPTY_SLOT;
+                int storageRow = -1; 
+
+                bool loop = true;
+                for (unsigned int i = 0; i < turns->size() && loop; ++i) {
+                    loop = false;
+                    std::stringstream stream(turns->at(i));
+                    if (getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, false)) {
+                        if (validateTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false)) {
+                            playTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false);
+                            ++j;
+                            loop = true;
+                        } else {
+                            cout << endl << "Invalid turn format at: " << endl
+                            << i+1 << ": " << turns->at(i);
+                        }
+                    } else {
+                        cout << endl << "Invalid turn with respect to game context at: " << endl
+                            << i+1 << ": " << turns->at(i);
+                    }
+                    if (currentGame->roundOver()) {
+                        endRound(false);
+                        if (i != NO_OF_ROUNDS - 1) {
+                            j = resetGameBoard();
+                        }
+                        ++round;
+                    }
+                }
+
+                // continue game
+                playGame(round, j % NO_OF_PLAYERS);
+
+                endGame();
             }
         }
     }
 }
 
-bool GameHandler::playTurn(int playerNo, Game *game)
+void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame)
 {
-    cout << endl
-         << "TURN FOR PLAYER: " << players[playerNo]->getName() << endl
-         << "Factories:" << endl
-         << game->printFactories() << endl
-         << "Mosaic for " + players[playerNo]->getName() << ":" << endl
-         << players[playerNo]->printPlayerBoard() << endl
-         << "> ";
+    // remove tile(s) from relevant factory, obtain number of tiles removed
+    int numTilesToAdd = currentGame->removeFromFactory(factoryNo, tile);
 
-    int factoryNo;
-    Tile tile;
-    int storageRow;
-
-    bool result = true;
-    do
+    // handle 'f' tile if specified factory is the centre factory (0)
+    // if first element of centre factory is 'F', add f to floor line of player
+    if (factoryNo == 0 && currentGame->checkForFirstPlayerTile())
     {
-        result = getPlayerTurn(&factoryNo, &tile, &storageRow);
-    } while (result && !validateTurn(playerNo, game, factoryNo, tile, storageRow));
-
-    if (result)
-    {
-        // remove tile(s) from relevant factory, obtain number of tiles removed
-        int numTilesToAdd = game->removeFromFactory(factoryNo, tile);
-
-        // handle 'f' tile if specified factory is the centre factory (0)
-        // if first element of centre factory is 'F', add f to floor line of player
-        if (factoryNo == 0 && game->checkForFirstPlayerTile())
+        players[playerNo]->addToFloorLine(FIRST_PLAYER_TILE, 1);
+        if (newGame)
         {
-            players[playerNo]->addToFloorLine(FIRST_PLAYER_TILE, 1);
             cout << "Player " << players[playerNo]->getName() << " goes first next round" << endl;
         }
+    }
 
-        // add tile(s) to player storage row (and/or floor line)
-        int num = players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
+    // add tile(s) to player storage row (and/or floor line)
+    int num = players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
 
-        // add to tilebag if floor line of player is full
-        for (int i = 0; i < num; ++i) {
-            tilebag->addBack(tile);
-        }
+    // add to tilebag if floor line of player is full
+    for (int i = 0; i < num; ++i)
+    {
+        tilebag->addBack(tile);
+    }
 
+    if (newGame)
+    {
+        turns->push_back("turn " + factoryNo + ' ' + tile + ' ' + storageRow);
         cout << "Turn Successful." << endl;
-    } // not EOF
-    return result;
+    }
 }
 
-bool GameHandler::getPlayerTurn(int *factoryNo, Tile *tile, int *storageRow)
+bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile *tile, int *storageRow, bool newGame)
 {
-    string inputFactory;
-    string inputTile;
-    string inputStorageRow;
-
-    string maxFactoryValue = std::to_string(NO_OF_FACTORIES - 1);
+    bool invalidTurn = true;
     string validTiles = VALID_TURN_TILES;
     string maxStorageRowValue = std::to_string(MOSAIC_DIM);
-    string fileName = " ", choice = " ";
 
     string command;
+    string inputStorageRow;
 
-    bool result = true;
-    bool invalidTurn = result;
-    bool fileNotFound = false, newGame = false;
+    string fileName = " ", choice = " ";
+    bool fileNotFound = false, newGame1 = false;
 
-    while (invalidTurn)
-    {
-        if (cin >> command)
-        {
-            if (command == "save" || command == "SAVE")
-            {
-                do
+    *stream >> command;
+    if (newGame && (command == "save" || command == "SAVE")) {
+        do {
+            if (*stream >> fileName) {
+                fileNotFound = fileHandler->saveFileCHeck(fileName);
+                if (!fileNotFound)
                 {
-                    if (cin >> fileName)
+                    cout << "File already exists. Would you like to overwrite save data? [y/n]" << endl;
+                    cout << "> ";
+                    cin >> choice;
+                    if (choice == "y" || choice == "Y")
                     {
-                        fileNotFound = fileHandler->saveFileCHeck(fileName);
-                        if (!fileNotFound)
-                        {
-                            cout << "File already exists. Would you like to overwrite save data? [y/n]" << endl;
-                            cout << "> ";
-                            cin >> choice;
-                            if (choice == "y" || choice == "Y")
-                            {
-                                newGame = false;
-                                fileHandler->saveGame(fileName, tilebag, players, turns, newGame);
-                            }
-                            if (choice == "n" || choice == "N")
-                            {
-                                newGame = true;
-                                cout << "Please enter new file name\n> " << endl;
-                                fileHandler->saveGame(fileName, tilebag, players, turns, newGame);
-                            }
-                        }
+                        newGame = false;
+                        fileHandler->saveGame(fileName, tilebag, players, turns, newGame1);
                     }
-                    //exists if file is not found and user wants to create a new game
-                    //OR
-                    //exists if file is found and user doesnt want a new game.
-                } while ((!fileNotFound && newGame) || (!fileNotFound && !newGame));
-            } else if (command == "turn" || command == "TURN")
-            {
-                if (cin >> inputFactory)
-                {
-                    if (inputFactory.compare("0") >= 0 && inputFactory.compare(maxFactoryValue) <= 0)
+                    if (choice == "n" || choice == "N")
                     {
-                        *factoryNo = std::stoi(inputFactory);
-                        if (cin >> inputTile)
-                        {
-                            if (validTiles.find(inputTile) != string::npos)
-                            {
-                                *tile = (Tile)inputTile.at(0);
-                                if (cin >> inputStorageRow)
-                                {
-                                    if (inputStorageRow == "broken" || (inputStorageRow.compare("1") >= 0 && inputStorageRow.compare(maxStorageRowValue) <= 0))
-                                    {
-                                        if (inputStorageRow == "broken")
-                                        {
-                                            *storageRow = 6;
-                                        }
-                                        else
-                                        {
-                                            *storageRow = std::stoi(inputStorageRow);
-                                        }
-                                        invalidTurn = false;
-                                        // clear input buffer
-                                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                                    }
-                                    else
-                                    {
-                                        // not a valid storage row number (should be bet 1 & maxStorageRowValue)
-                                        cout << inputStorageRow << ": invalid storage row number, pick from 1 to "
-                                             << maxStorageRowValue << endl;
-                                    }
-                                }
-                                else
-                                {
-                                    // EOF
-                                }
-                            }
-                            else
-                            {
-                                // tile is not a valid tile
-                                cout << inputTile + ": is not a valid tile" << endl;
-                            }
-                        }
-                        else
-                        {
-                            // EOF
-                        }
-
-                    } // in range for factory
-                    else
-                    {
-                        cout << inputFactory << ": out of range for factory, pick from 0 to " << maxFactoryValue << endl;
+                        newGame = true;
+                        cout << "Please enter new file name\n> " << endl;
+                        fileHandler->saveGame(fileName, tilebag, players, turns, newGame1);
                     }
                 }
-                else
-                {
-                    // EOF
-                }
             }
-            else
-            {
-                // invalid command - turn <factory> <tile-code> <storage row>
-                cout << command << ": invalid command, use the following format" << endl
-                     << "'turn <factory> <tile-code> <storage row>'" << endl
-                     << "or 'save <filename>' to save game";
-            }
-        }
-        else
-        {
-            // EOF
-        }
+        } while ((!fileNotFound && newGame1) || (!fileNotFound && !newGame1));
+    } else if (command == "turn" || command == "TURN") {
+        if (*stream >> *factoryNo && *factoryNo >= 0 && *factoryNo <= (NO_OF_FACTORIES - 1)) {
+            *stream >> *tile;
 
-        if (invalidTurn)
-        {
-            if (cin.eof())
-            {
+            if (validTiles.find(*tile) != string::npos) {
+                *stream >> inputStorageRow;
                 invalidTurn = false;
-                result = false;
+
+                if (inputStorageRow == "broken"){
+                    *storageRow = FLOOR_LINE_INDEX;
+                } else if(inputStorageRow.compare("1") >= 0 && inputStorageRow.compare(maxStorageRowValue) <= 0) {
+                    *storageRow = std::stoi(inputStorageRow);
+                } else {
+                    invalidTurn = true;
+                    if (newGame) {
+                        cout << "Invalid storage row selected, pick from 1 to " <<
+                            maxStorageRowValue << " , or 'broken'" << endl;
+                    }
+                }
+            } else {
+                if (newGame) {
+                    cout << "Invalid tile" << endl;
+                }
             }
-            else
-            {
-                cout << endl
-                     << "Enter turn again" << endl
-                     << "> ";
-                cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        } else {
+            if (newGame) {
+                cout << "Out of range for factory, pick from 0 to " << (NO_OF_FACTORIES - 1) << endl;
             }
+        }
+    } else {
+        if (newGame) {
+            cout << "Invalid command, use the following format" << endl
+                    << "turn <factory> <tile-code> <storage row>" << endl;
         }
     }
-    return result;
+
+    if (invalidTurn && newGame) {   
+        cout << endl << "Enter turn again" << endl << "> ";
+    }
+
+    return !invalidTurn;
 }
 
-bool GameHandler::validateTurn(int playerNo, Game *game, int factoryNo, Tile tile, int storageRow)
+bool GameHandler::validateTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame)
 {
     string errorMessage = "Invalid turn: ";
-    bool result = (game->validateTurn(factoryNo, tile, &errorMessage) &&
+    bool result = (currentGame->validateTurn(factoryNo, tile, &errorMessage) &&
                    players[playerNo]->validateTurn(tile, storageRow, &errorMessage));
-    if (!result)
+    if (!result && newGame)
     {
         cout << errorMessage << endl
              << "Enter turn again" << endl
@@ -307,6 +324,14 @@ bool GameHandler::validateTurn(int playerNo, Game *game, int factoryNo, Tile til
 
 bool GameHandler::addPlayers()
 {
+    for (int i = 0; i < NO_OF_PLAYERS; ++i)
+    {
+        if (players[i] != nullptr)
+        {
+            delete players[i];
+        }
+    }
+
     bool result = false;
 
     cout << endl
@@ -347,22 +372,31 @@ bool GameHandler::addPlayers()
     return result;
 }
 
-void GameHandler::endRound()
+void GameHandler::endRound(bool newGame)
 {
-    for (int i = 0; i < NO_OF_PLAYERS; ++i)
+    if (newGame)
     {
-        cout << "Mosaic for Player " << players[i]->getName() << ":" << endl
-             << players[i]->printPlayerBoard() << endl;
+        for (int i = 0; i < NO_OF_PLAYERS; ++i)
+        {
+            cout << "Mosaic for Player " << players[i]->getName() << ":" << endl
+                 << players[i]->printPlayerBoard() << endl;
+        }
+        cout << endl
+             << "Points Scored:" << endl;
     }
-    cout << endl
-         << "Points Scored:" << endl;
     for (int i = 0; i < NO_OF_PLAYERS; ++i)
     {
         int points = players[i]->updateScore(defaultMosaicGrid, tilebag);
-        cout << "Player " + players[i]->getName() + ": " << std::to_string(points) << endl
-             << players[i]->printPlayerBoard() << endl;
+        if (newGame)
+        {
+            cout << "Player " + players[i]->getName() + ": " << std::to_string(points) << endl
+                 << players[i]->printPlayerBoard() << endl;
+        }
     }
-    printPlayerPoints("Total Points");
+    if (newGame)
+    {
+        printPlayerPoints("Total Points");
+    }
 }
 
 void GameHandler::printGameResults()
@@ -406,7 +440,7 @@ void GameHandler::printPlayerPoints(string message)
     }
 }
 
-int GameHandler::resetGameBoard(Game *game)
+int GameHandler::resetGameBoard()
 {
     int result = -1;
     for (int i = 0; i < NO_OF_PLAYERS; ++i)
@@ -416,6 +450,6 @@ int GameHandler::resetGameBoard(Game *game)
             result = i;
         }
     }
-    game->populateFactories(tilebag);
+    currentGame->populateFactories(tilebag);
     return result;
 }

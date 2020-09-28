@@ -5,6 +5,7 @@
 #include "Game.h"
 #include "Types.h"
 #include "GameFileHandler.h"
+#include "GameHandler.h"
 
 using std::cin;
 using std::cout;
@@ -120,7 +121,8 @@ void GameFileHandler::toCharString(string fileName, char arr[], int size)
     }
 }
 
-bool GameFileHandler::loadGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns)
+bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, LinkedList *tileBag,
+         Player *players[NO_OF_PLAYERS], vector<string> *turns)
 {
     bool valid = true;;
     std::ifstream readFile;
@@ -155,6 +157,7 @@ bool GameFileHandler::loadGame(string fileName, LinkedList *tileBag, Player *pla
                 if (std::getline(readFile, line)) {
                     if (players[i] != nullptr) {
                         delete players[i];
+                        players[i] = nullptr;
                     }
                     players[i] = new Player(line);
                 } else {
@@ -166,10 +169,7 @@ bool GameFileHandler::loadGame(string fileName, LinkedList *tileBag, Player *pla
 
         // read turns
         if(valid) {
-            if (turns != nullptr) {
-                turns->clear();
-            }
-            while(!readFile.eof()) {
+            while (!readFile.eof()) {
                 if (std::getline(readFile, line)) {
                     turns->push_back(line);
                 }

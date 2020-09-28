@@ -13,6 +13,7 @@
 #define TILEBAG_MIN_SIZE    100
 #define FACTORY_MAX_SIZE    4
 #define FLOOR_LINE_MAX_SIZE 7
+#define FLOOR_LINE_INDEX    6
 #define VALID_TURN_TILES    "BURLY"
 #define EMPTY_SLOT          '.'
 #define FIRST_PLAYER_TILE   'F'
