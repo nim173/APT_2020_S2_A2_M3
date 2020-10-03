@@ -133,6 +133,8 @@ void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *pla
 
     saveFile.close();
 
+    cout << "Save Successful!";
+
     
 }
 
