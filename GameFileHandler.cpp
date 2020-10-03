@@ -112,9 +112,6 @@ void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *pla
     // writeFile.close();
     // readFile.close();    
 
-    cout << turns->size() << endl;
-
-
     std::ofstream saveFile;
     std::ifstream initialTileBagFile (DEFAULT_TILEBAG_FILE);
     
@@ -130,8 +127,6 @@ void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *pla
         saveFile << players[i]->getName() << endl;
     }
     for(unsigned int i = 0; i < turns->size(); i++){
-        cout << turns->at(i) << endl;
-        
         saveFile << turns->at(i) << endl;
     }
 
