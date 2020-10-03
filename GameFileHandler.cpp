@@ -60,57 +60,85 @@ bool GameFileHandler::saveFileCHeck(string fileName)
 
 void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns, bool newGame)
 {
-    std::ofstream writeFile(fileName, std::ofstream::trunc);
-    std::ifstream readFile(fileName);
-    writeFile.open(fileName);
-    readFile.open(fileName);
-    cout << "im here" << endl;
+    // std::ofstream writeFile(fileName, std::ofstream::trunc);
+    // std::ifstream readFile(fileName);
+    // writeFile.open(fileName);
+    // readFile.open(fileName);
+    // cout << "im here" << endl;
 
-    std::ifstream initialTileBagFile;
-    initialTileBagFile.open(fileName + "initial.tilebag");
+    // std::ifstream initialTileBagFile;
+    // initialTileBagFile.open(fileName + "initial.tilebag");
 
-    string name = fileName + "initial.tilebag";
-    int size = name.length();
-    char initialTileBagFileName[size];
-    //turning it into a CStyle string to accomodate overwriting the file
-    toCharString(name, initialTileBagFileName, size);
+    // string name = fileName + "initial.tilebag";
+    // int size = name.length();
+    // char initialTileBagFileName[size];
+    // //turning it into a CStyle string to accomodate overwriting the file
+    // toCharString(name, initialTileBagFileName, size);
 
-    //if new game then add default tile bag and save players names
-    if (newGame)
-    {
-        writeFile << DEFAULT_TILEBAG_FILE << endl;
+    // //if new game then add default tile bag and save players names
+    // if (newGame)
+    // {
+    //     writeFile << DEFAULT_TILEBAG_FILE << endl;
+    // }
+    // else
+    // {
+    //     if (initialTileBagFile.good())
+    //     {
+    //         string sLine;
+    //         getline(initialTileBagFile, sLine);
+    //         writeFile << sLine << endl;
+    //     }
+
+    //     initialTileBagFile.close();
+
+    //     remove(initialTileBagFileName);
+    // }
+
+    // for (int i = 0; i < NO_OF_PLAYERS; ++i)
+    // {
+    //     writeFile << players[i]->getName() << std::endl;
+    // }
+
+    // for (vector<string>::const_iterator i = (*turns).begin(); i != (*turns).end(); ++i)
+    // {
+    //     writeFile << *i << std::endl;
+    // }
+
+    // for (unsigned int i = 0; i != turns->size(); i++)
+    // {
+    //     writeFile << turns->at(i) << endl;
+    // }
+
+    // writeFile.close();
+    // readFile.close();    
+
+    cout << turns->size() << endl;
+
+
+    std::ofstream saveFile;
+    std::ifstream initialTileBagFile (DEFAULT_TILEBAG_FILE);
+    
+
+    saveFile.open ("saveFiles/"+fileName);
+    string initialTileBag; 
+    initialTileBagFile >> initialTileBag;
+    saveFile << initialTileBag <<endl;
+    initialTileBagFile.close();
+
+
+    for(int i = 0; i < NO_OF_PLAYERS; i++){
+        saveFile << players[i]->getName() << endl;
     }
-    else
-    {
-        if (initialTileBagFile.good())
-        {
-            string sLine;
-            getline(initialTileBagFile, sLine);
-            writeFile << sLine << endl;
-        }
-
-        initialTileBagFile.close();
-
-        remove(initialTileBagFileName);
+    for(unsigned int i = 0; i < turns->size(); i++){
+        cout << turns->at(i) << endl;
+        
+        saveFile << turns->at(i) << endl;
     }
 
-    for (int i = 0; i < NO_OF_PLAYERS; ++i)
-    {
-        writeFile << players[i]->getName() << std::endl;
-    }
 
-    for (vector<string>::const_iterator i = (*turns).begin(); i != (*turns).end(); ++i)
-    {
-        writeFile << *i << std::endl;
-    }
+    saveFile.close();
 
-    for (unsigned int i = 0; i != turns->size(); i++)
-    {
-        writeFile << turns->at(i) << endl;
-    }
-
-    writeFile.close();
-    readFile.close();
+    
 }
 
 void GameFileHandler::toCharString(string fileName, char arr[], int size)
