@@ -271,8 +271,18 @@ void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRo
 
     if (newGame)
     {
-        turns->push_back("turn " + factoryNo + ' ' + tile + ' ' + storageRow);
-        cout << "Turn Successful." << endl;
+        std::stringstream ss;
+        ss << "turn ";
+        ss << factoryNo;
+        ss << ' ';
+        ss << tile;
+        ss << ' ';
+        ss << storageRow;
+
+        string turn = ss.str();
+        
+        turns->push_back(turn);
+        cout << "Turn Successful." << endl;     
     }
 }
 
