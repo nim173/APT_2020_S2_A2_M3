@@ -1,12 +1,12 @@
 
-Invalid turn with respect to game context at: 
-2: TURN 7 B 1
+Invalid turn format at: 
+3: TURN 3 B 1
 
 Factories:
-0: F Y U R 
+0: F Y U R L Y U 
 1: B U R L 
 2: 
-3: L Y B U 
+3: 
 4: R L Y B 
 5: U R L Y 
 
@@ -21,7 +21,7 @@ broken:
 
 
 Mosaic for B:
-1:         . || . . . . .
+1:         B || . . . . .
 2:       . . || . . . . .
 3:     . . . || . . . . .
 4:   . . . . || . . . . .

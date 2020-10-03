@@ -504,17 +504,23 @@ int GameHandler::resetGameBoard()
 void GameHandler::testGame(string fileName) {
    loadGameTesting(fileName);
    //print factories
-   cout << endl
-        << endl
-        << "Factories:" << endl
-        << currentGame->printFactories() << endl;
-    
-    //print boards.
-    for (int i = 0; i < NO_OF_PLAYERS; i++) {
-      players[i]->printPlayerBoard();
-
+   //check if load is successful
+    if ((turns->size() > 0)) {
       cout << endl
-           << "Mosaic for " << players[i]->getName() << ":" << endl
-           << players[i]->printPlayerBoard() << endl;
+           << endl
+           << "Factories:" << endl
+           << currentGame->printFactories() << endl;
+
+      //print boards.
+      for (int i = 0; i < NO_OF_PLAYERS; i++) {
+         players[i]->printPlayerBoard();
+
+         cout << endl
+              << "Mosaic for " << players[i]->getName() << ":" << endl
+              << players[i]->printPlayerBoard() << endl;
+      }
+    }
+    else {
+        cout << "Load Failed." << endl;
     }
 }

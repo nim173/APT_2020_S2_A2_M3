@@ -1,6 +1,6 @@
 
 Invalid turn with respect to game context at: 
-2: TURN 7 B 1
+2: TURN 3 B 7
 
 Factories:
 0: F Y U R 
@@ -12,8 +12,8 @@ Factories:
 
 
 Mosaic for A:
-1:         B || . . . . .
-2:       . . || . . . . .
+1:         . || . . . . .
+2:       . B || . . . . .
 3:     . . . || . . . . .
 4:   . . . . || . . . . .
 5: . . . . . || . . . . .
