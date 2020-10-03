@@ -1,0 +1,10 @@
+Player.o
+MainMenu.o
+GameHandler.o
+GameFileHandler.o
+Game.o
+DELinkedList.o
+APT_2020_S2_A2
+tests/testload.out
+tests/testload.txt
+.vscode/settings.json

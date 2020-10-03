@@ -197,6 +197,53 @@ void GameHandler::loadGame() {
     }
 }
 
+void GameHandler::loadGameTesting(string fileName) {
+   if (!fileHandler->loadFileCheck(fileName)) {
+      cout << endl
+           << "File does not exist." << endl;
+   } else {
+      tilebag = new LinkedList();
+      if (fileHandler->loadGame(fileName, this, tilebag, players, turns)) {
+         // simulate the turns
+         currentGame = new Game(tilebag);
+         int round = 0;
+         int j = NO_OF_PLAYERS;
+
+         int factoryNo = -1;
+         Tile tile = EMPTY_SLOT;
+         int storageRow = -1;
+
+         bool loop = true;
+         for (unsigned int i = 0; i < turns->size() && loop; ++i) {
+            loop = false;
+            std::stringstream stream(turns->at(i));
+            if (getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, false)) {
+               if (validateTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false)) {
+                  playTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false);
+                  ++j;
+                  loop = true;
+               } else {
+                  cout << endl
+                       << "Invalid turn format at: " << endl
+                       << i + 1 << ": " << turns->at(i);
+               }
+            } else {
+               cout << endl
+                    << "Invalid turn with respect to game context at: " << endl
+                    << i + 1 << ": " << turns->at(i);
+            }
+            if (currentGame->roundOver()) {
+               endRound(false);
+               if (i != NO_OF_ROUNDS - 1) {
+                  j = resetGameBoard();
+               }
+               ++round;
+            }
+         }
+      }
+   }
+}
+
 void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame)
 {
     // remove tile(s) from relevant factory, obtain number of tiles removed
@@ -224,8 +271,18 @@ void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRo
 
     if (newGame)
     {
-        turns->push_back("turn " + factoryNo + ' ' + tile + ' ' + storageRow);
-        cout << "Turn Successful." << endl;
+        std::stringstream ss;
+        ss << "turn ";
+        ss << factoryNo;
+        ss << ' ';
+        ss << tile;
+        ss << ' ';
+        ss << storageRow;
+
+        string turn = ss.str();
+        
+        turns->push_back(turn);
+        cout << "Turn Successful." << endl;     
     }
 }
 
@@ -239,32 +296,40 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
     string inputStorageRow;
 
     string fileName = " ", choice = " ";
-    bool fileNotFound = false, newGame1 = false;
+    //bool fileNotFound = false, newGame1 = false;
 
     *stream >> command;
     if (newGame && (command == "save" || command == "SAVE")) {
-        do {
-            if (*stream >> fileName) {
-                fileNotFound = fileHandler->saveFileCHeck(fileName);
-                if (!fileNotFound)
-                {
-                    cout << "File already exists. Would you like to overwrite save data? [y/n]" << endl;
-                    cout << "> ";
-                    cin >> choice;
-                    if (choice == "y" || choice == "Y")
-                    {
-                        newGame = false;
-                        fileHandler->saveGame(fileName, tilebag, players, turns, newGame1);
-                    }
-                    if (choice == "n" || choice == "N")
-                    {
-                        newGame = true;
-                        cout << "Please enter new file name\n> " << endl;
-                        fileHandler->saveGame(fileName, tilebag, players, turns, newGame1);
-                    }
-                }
-            }
-        } while ((!fileNotFound && newGame1) || (!fileNotFound && !newGame1));
+        // do {
+        //     if (*stream >> fileName) {
+        //         fileNotFound = fileHandler->saveFileCHeck(fileName);
+        //         if (!fileNotFound)
+        //         {
+        //             cout << "File already exists. Would you like to overwrite save data? [y/n]" << endl;
+        //             cout << "> ";
+        //             cin >> choice;
+        //             if (choice == "y" || choice == "Y")
+        //             {
+        //                 newGame = false;
+        //                 fileHandler->saveGame(fileName, tilebag, players, turns, newGame1);
+        //             }
+        //             if (choice == "n" || choice == "N")
+        //             {
+        //                 newGame = true;
+        //                 cout << "Please enter new file name\n> " << endl;
+        //                 fileHandler->saveGame(fileName, tilebag, players, turns, newGame1);
+        //             }
+        //             else{
+        //                 newGame = true;
+        //                 cout << "Please enter new file name\n> " << endl;
+        //                 fileHandler->saveGame(fileName, tilebag, players, turns, newGame1);
+        //             }
+        //         }
+        //     }
+        // } while ((!fileNotFound && newGame1) || (!fileNotFound && !newGame1));
+        if(*stream>>fileName){
+            fileHandler->saveGame(fileName, tilebag, players, turns, true);
+        }
     } else if (command == "turn" || command == "TURN") {
         if (*stream >> *factoryNo && *factoryNo >= 0 && *factoryNo <= (NO_OF_FACTORIES - 1)) {
             *stream >> *tile;
@@ -452,4 +517,35 @@ int GameHandler::resetGameBoard()
     }
     currentGame->populateFactories(tilebag);
     return result;
+}
+
+void GameHandler::testGame(string fileName) {
+    
+
+
+   loadGameTesting(fileName);
+   //print factories
+   //check if load is successful
+
+   
+    if ((turns->size() > 0)) {
+      cout << endl
+           << endl
+           << "Factories:" << endl
+           << currentGame->printFactories() << endl;
+
+      //print boards.
+      for (int i = 0; i < NO_OF_PLAYERS; i++) {
+         players[i]->printPlayerBoard();
+
+         cout << endl
+              << "Mosaic for " << players[i]->getName() << ":" << endl
+              << players[i]->printPlayerBoard() << endl;
+      }
+    }
+    else {
+        cout << "Load Failed." << endl;
+    }   
+
+    endGame();
 }

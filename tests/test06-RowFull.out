@@ -1,0 +1,30 @@
+
+Invalid turn format at: 
+7: TURN 0 R 2
+
+Factories:
+0: U L U L B U L 
+1: B U R L 
+2: 
+3: 
+4: 
+5: 
+
+
+Mosaic for A:
+1:         B || . . . . .
+2:       R R || . . . . .
+3:     . . . || . . . . .
+4:   . . . . || . . . . .
+5: . . . . . || . . . . .
+broken: F R 
+
+
+Mosaic for B:
+1:         B || . . . . .
+2:       Y Y || . . . . .
+3:     . . . || . . . . .
+4:   . . . . || . . . . .
+5: . . . . . || . . . . .
+broken: Y Y 
+

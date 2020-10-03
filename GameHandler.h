@@ -16,8 +16,12 @@ public:
     void playNewGame();
 
     void loadGame();
+
+    void loadGameTesting(string fileName);
     
     void playGame(int startingRound, int startingPlayer);
+
+    void testGame(string fileName);
 
     // returns false if EOF encountered while getting user input
     void playTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame);

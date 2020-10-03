@@ -1,0 +1,30 @@
+
+Invalid turn with respect to game context at: 
+2: TURN 7 B 1
+
+Factories:
+0: F Y U R 
+1: B U R L 
+2: 
+3: L Y B U 
+4: R L Y B 
+5: U R L Y 
+
+
+Mosaic for A:
+1:         B || . . . . .
+2:       . . || . . . . .
+3:     . . . || . . . . .
+4:   . . . . || . . . . .
+5: . . . . . || . . . . .
+broken: 
+
+
+Mosaic for B:
+1:         . || . . . . .
+2:       . . || . . . . .
+3:     . . . || . . . . .
+4:   . . . . || . . . . .
+5: . . . . . || . . . . .
+broken: 
+
