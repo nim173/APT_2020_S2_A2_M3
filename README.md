@@ -5,3 +5,12 @@
 <li><b>Sean Aaron Morais - S3808041</b></li>  
 <li><b>Ryan Fant Peterson - S3817175</b></li>  
 </ul>
+
+# Run Instructions  
+## Basic Usage:  
+1. `make`  
+2. run using `./APT_2020_S2_A2`  
+
+## Testing  
+1. `make`  
+2. run using `./APT_2020_S2_A2 -t PATH_TO_TEST_FILE`   
