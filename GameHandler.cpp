@@ -328,7 +328,7 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
         //     }
         // } while ((!fileNotFound && newGame1) || (!fileNotFound && !newGame1));
         if(*stream>>fileName){
-            fileHandler->saveGame(fileName, tilebag, players, turns, true);
+            fileHandler->saveGame(fileName, tilebag, players, turns);
         }
     } else if (command == "turn" || command == "TURN") {
         if (*stream >> *factoryNo && *factoryNo >= 0 && *factoryNo <= (NO_OF_FACTORIES - 1)) {

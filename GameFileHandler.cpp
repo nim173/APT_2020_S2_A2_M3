@@ -58,7 +58,7 @@ bool GameFileHandler::saveFileCHeck(string fileName)
     return fileNotFound;
 }
 
-void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns, bool newGame)
+void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns)
 {
     // std::ofstream writeFile(fileName, std::ofstream::trunc);
     // std::ifstream readFile(fileName);
