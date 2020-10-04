@@ -241,37 +241,9 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
     string inputStorageRow;
 
     string fileName = " ", choice = " ";
-    //bool fileNotFound = false, newGame1 = false;
 
     *stream >> command;
     if (newGame && (command == "save" || command == "SAVE")) {
-        // do {
-        //     if (*stream >> fileName) {
-        //         fileNotFound = fileHandler->saveFileCHeck(fileName);
-        //         if (!fileNotFound)
-        //         {
-        //             cout << "File already exists. Would you like to overwrite save data? [y/n]" << endl;
-        //             cout << "> ";
-        //             cin >> choice;
-        //             if (choice == "y" || choice == "Y")
-        //             {
-        //                 newGame = false;
-        //                 fileHandler->saveGame(fileName, tilebag, players, turns, newGame1);
-        //             }
-        //             if (choice == "n" || choice == "N")
-        //             {
-        //                 newGame = true;
-        //                 cout << "Please enter new file name\n> " << endl;
-        //                 fileHandler->saveGame(fileName, tilebag, players, turns, newGame1);
-        //             }
-        //             else{
-        //                 newGame = true;
-        //                 cout << "Please enter new file name\n> " << endl;
-        //                 fileHandler->saveGame(fileName, tilebag, players, turns, newGame1);
-        //             }
-        //         }
-        //     }
-        // } while ((!fileNotFound && newGame1) || (!fileNotFound && !newGame1));
         if(*stream>>fileName){
             fileHandler->saveGame(fileName, tilebag, players, turns);
         } else {
