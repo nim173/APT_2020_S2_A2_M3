@@ -1,10 +1,8 @@
 
-Invalid turn format at: 
-7: TURN 1 R 2
 
 Factories:
-0: U L U L B U L 
-1: B U R L 
+0: U L U L B U L B U L 
+1: 
 2: 
 3: 
 4: 
@@ -17,7 +15,7 @@ Mosaic for A:
 3:     . . . || . . . . .
 4:   . . . . || . . . . .
 5: . . . . . || . . . . .
-broken: F R 
+broken: F R R 
 
 
 Mosaic for B:
