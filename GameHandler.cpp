@@ -338,7 +338,7 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
                 *stream >> inputStorageRow;
                 invalidTurn = false;
 
-                if (inputStorageRow == "broken"){
+                if (inputStorageRow == "broken"||inputStorageRow == "6"){
                     *storageRow = FLOOR_LINE_INDEX;
                 } else if(inputStorageRow.compare("1") >= 0 && inputStorageRow.compare(maxStorageRowValue) <= 0) {
                     *storageRow = std::stoi(inputStorageRow);

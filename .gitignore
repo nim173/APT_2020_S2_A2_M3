@@ -8,3 +8,8 @@ APT_2020_S2_A2
 tests/testload.out
 tests/testload.txt
 .vscode/settings.json
+saveFiles/testRound5.txt
+saveFiles/testRound3.txt
+saveFiles/testRound4.txt
+saveFiles/testRound2.txt
+saveFiles/testMiddleRound5BeforeWin.txt

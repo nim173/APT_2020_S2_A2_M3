@@ -111,31 +111,28 @@ void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *pla
 
     // writeFile.close();
     // readFile.close();    
-
+    //open/create the save file.
     std::ofstream saveFile;
-    std::ifstream initialTileBagFile (DEFAULT_TILEBAG_FILE);
-    
-
     saveFile.open ("saveFiles/"+fileName);
+
+    //first load the initial tileBag
+    std::ifstream initialTileBagFile (DEFAULT_TILEBAG_FILE);
     string initialTileBag; 
     initialTileBagFile >> initialTileBag;
     saveFile << initialTileBag <<endl;
     initialTileBagFile.close();
 
-
+    //save player names
     for(int i = 0; i < NO_OF_PLAYERS; i++){
         saveFile << players[i]->getName() << endl;
     }
+    //save all turns
     for(unsigned int i = 0; i < turns->size(); i++){
         saveFile << turns->at(i) << endl;
     }
-
-
+    //close the save file. 
     saveFile.close();
-
-    cout << "Save Successful!";
-
-    
+    cout << "Save Successful!";    
 }
 
 void GameFileHandler::toCharString(string fileName, char arr[], int size)
