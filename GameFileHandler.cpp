@@ -41,7 +41,7 @@ void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *pla
     saveFile.open ("saveFiles/"+fileName);
 
     //first load the initial tileBag
-    std::ifstream initialTileBagFile (DEFAULT_TILEBAG_FILE);
+    std::ifstream initialTileBagFile (INITIAL_TILEBAG_FILE);
     string initialTileBag; 
     initialTileBagFile >> initialTileBag;
     saveFile << initialTileBag <<endl;
@@ -200,7 +200,7 @@ bool GameFileHandler::loadMosaic(string file, Mosaic mosaic)
 void GameFileHandler::writeIntialBag(string intialBag){
 
     std::ofstream initialBAG;
-    initialBAG.open ("initial.tilebag");
+    initialBAG.open (INITIAL_TILEBAG_FILE);
     initialBAG << intialBag;
     initialBAG.close();
 }
