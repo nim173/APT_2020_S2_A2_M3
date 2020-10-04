@@ -26,6 +26,8 @@ public:
 
     void toCharString(string fileName, char arr[], int size);
 
+    void writeIntialBag(string intialBag);
+
 
 private:
 };

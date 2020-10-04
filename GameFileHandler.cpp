@@ -72,6 +72,7 @@ void GameFileHandler::toCharString(string fileName, char arr[], int size)
 bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, LinkedList *tileBag,
          Player *players[NO_OF_PLAYERS], vector<string> *turns)
 {
+    std::stringstream ss;
     bool valid = true;;
     std::ifstream readFile;
     std::ofstream tileBagFile;
@@ -85,6 +86,7 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
         while (ch != '\n' && valid && !readFile.eof()) {
             if (validTiles.find(ch) != string::npos) {
                 tileBag->addBack(ch);
+                ss << ch;
             } else {
                 if (ch != '\r') {
                     cout << endl <<"Error: Invalid characters found in tilebag" << endl;
@@ -98,6 +100,8 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
             cout << endl << "Error: Tilebag is too small, should be atleast 100" << endl;
             valid = false;
         }
+
+        writeIntialBag(ss.str());
 
         // read player names
         if (valid) {
@@ -136,6 +140,7 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
 bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
 {
     tilebag->clear();
+    std::stringstream ss;
     bool result = false;
     std::ifstream inFile;
     inFile.open(file);
@@ -148,8 +153,10 @@ bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
         {
             if (validTiles.find(tiles.at(i)) != string::npos) {
                 tilebag->addBack(tiles.at(i));
+                ss << tiles.at(i);
             }
         }
+        writeIntialBag(ss.str());
         result = true;
     }
     else
@@ -188,5 +195,13 @@ bool GameFileHandler::loadMosaic(string file, Mosaic mosaic)
     }
     inFile.close();
     return result;
+}
+
+void GameFileHandler::writeIntialBag(string intialBag){
+
+    std::ofstream initialBAG;
+    initialBAG.open ("initial.tilebag");
+    initialBAG << intialBag;
+    initialBAG.close();
 }
 
