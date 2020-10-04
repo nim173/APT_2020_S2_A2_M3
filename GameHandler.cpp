@@ -458,6 +458,9 @@ void GameHandler::testGame(string fileName) {
          players[i]->printPlayerBoard();
 
          cout << endl
+              << "Score for player " << players[i]->getName() << ": " << players[i]->getPoints();
+
+         cout << endl
               << "Mosaic for " << players[i]->getName() << ":" << endl
               << players[i]->printPlayerBoard() << endl;
       }
