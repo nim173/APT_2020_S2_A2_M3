@@ -16,8 +16,6 @@ public:
 
     bool loadFileCheck(string fileName);
 
-    bool saveFileCHeck(string fileName);
-
     void saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns);
 
     bool loadGame(string fileName, GameHandler* gameHandler, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns);

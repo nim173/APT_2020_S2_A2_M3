@@ -34,83 +34,8 @@ bool GameFileHandler::loadFileCheck(string fileName)
     return result;
 }
 
-bool GameFileHandler::saveFileCHeck(string fileName)
-{
-    // std::ofstream file;
-    bool fileNotFound = false;
-
-    // if (file.fail(fileName))
-    // {
-    //     fileNotFound = true;
-    // }
-
-    std::ifstream ifile;
-    ifile.open(fileName);
-    if (!ifile)
-    {
-        fileNotFound = true;
-    }
-    else
-    {
-        cout << "file doesn't exist";
-    }
-    ifile.close();
-    return fileNotFound;
-}
-
 void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns)
 {
-    // std::ofstream writeFile(fileName, std::ofstream::trunc);
-    // std::ifstream readFile(fileName);
-    // writeFile.open(fileName);
-    // readFile.open(fileName);
-    // cout << "im here" << endl;
-
-    // std::ifstream initialTileBagFile;
-    // initialTileBagFile.open(fileName + "initial.tilebag");
-
-    // string name = fileName + "initial.tilebag";
-    // int size = name.length();
-    // char initialTileBagFileName[size];
-    // //turning it into a CStyle string to accomodate overwriting the file
-    // toCharString(name, initialTileBagFileName, size);
-
-    // //if new game then add default tile bag and save players names
-    // if (newGame)
-    // {
-    //     writeFile << DEFAULT_TILEBAG_FILE << endl;
-    // }
-    // else
-    // {
-    //     if (initialTileBagFile.good())
-    //     {
-    //         string sLine;
-    //         getline(initialTileBagFile, sLine);
-    //         writeFile << sLine << endl;
-    //     }
-
-    //     initialTileBagFile.close();
-
-    //     remove(initialTileBagFileName);
-    // }
-
-    // for (int i = 0; i < NO_OF_PLAYERS; ++i)
-    // {
-    //     writeFile << players[i]->getName() << std::endl;
-    // }
-
-    // for (vector<string>::const_iterator i = (*turns).begin(); i != (*turns).end(); ++i)
-    // {
-    //     writeFile << *i << std::endl;
-    // }
-
-    // for (unsigned int i = 0; i != turns->size(); i++)
-    // {
-    //     writeFile << turns->at(i) << endl;
-    // }
-
-    // writeFile.close();
-    // readFile.close();    
     //open/create the save file.
     std::ofstream saveFile;
     saveFile.open ("saveFiles/"+fileName);
