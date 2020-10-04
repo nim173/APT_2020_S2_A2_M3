@@ -132,7 +132,8 @@ void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *pla
     }
     //close the save file. 
     saveFile.close();
-    cout << "Save Successful!";    
+
+    cout << "Save Successful!" << endl;
 }
 
 void GameFileHandler::toCharString(string fileName, char arr[], int size)
@@ -177,6 +178,10 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
         if (valid) {
             for (int i = 0; i < NO_OF_PLAYERS && valid; ++i) {
                 if (std::getline(readFile, line)) {
+                    // remove /r from windows files
+                    if (!line.empty() && line[line.size() - 1] == '\r') {
+                        line.erase(line.size() - 1);
+                    }
                     if (players[i] != nullptr) {
                         delete players[i];
                         players[i] = nullptr;
@@ -213,9 +218,12 @@ bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
     {
         string tiles;
         std::getline(inFile, tiles);
+        string validTiles = VALID_TURN_TILES;
         for (unsigned int i = 0; i < tiles.length(); ++i)
         {
-            tilebag->addBack(tiles.at(i));
+            if (validTiles.find(tiles.at(i)) != string::npos) {
+                tilebag->addBack(tiles.at(i));
+            }
         }
         result = true;
     }

@@ -29,7 +29,7 @@ GameHandler::GameHandler()
     {
         defaultMosaicGrid[i] = new Tile[MOSAIC_DIM];
     }
-    fileHandler->loadMosaic(DEFAULT_MOSAIC_FILE, defaultMosaicGrid); // TODO - ERROR CHECKING
+    fileHandler->loadMosaic(DEFAULT_MOSAIC_FILE, defaultMosaicGrid);
 }
 
 void GameHandler::playNewGame()
@@ -39,8 +39,7 @@ void GameHandler::playNewGame()
         cout << endl
              << "Let's Play!" << endl;
 
-        fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag); // TODO - ERROR CHECKING
-
+        fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag);
         currentGame = new Game(tilebag);
 
         // play the game
@@ -61,11 +60,8 @@ void GameHandler::playGame(int startingRound, int startingPlayer)
 
     for (int i = startingRound; i < NO_OF_ROUNDS && notEOF; ++i)
     {
-        if (i != startingRound)
-        {
-            cout << endl
-                 << "=== START OF ROUND ===" << endl;
-        }
+        cout << endl
+                << "== START OF ROUND " << std::to_string(i+1) << " ==" << endl;
         while (!currentGame->roundOver() && notEOF) {
             cout << endl
                  << "TURN FOR PLAYER: " << players[j % NO_OF_PLAYERS]->getName() << endl
@@ -133,115 +129,64 @@ void GameHandler::endGame() {
     delete currentGame;
     currentGame = nullptr;
 
-    for (int i = 0; i < NO_OF_PLAYERS; ++i)
-    {
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
         delete players[i];
         players[i] = nullptr;
     }
 }
 
-void GameHandler::loadGame() {
-    string fileName;
-    cout << endl
-         << "Enter the filename from which to load a game" << endl
-         << "> ";
-    if (std::getline(cin, fileName)) {
-        if (!fileHandler->loadFileCheck(fileName)) {
-            cout << endl 
-            << "File does not exist." << endl;
-        }
-        else {
-            tilebag = new LinkedList();
-            if (fileHandler->loadGame(fileName, this, tilebag, players, turns)) {
-                // simulate the turns
-                currentGame = new Game(tilebag);
-                int round = 0;
-                int j = NO_OF_PLAYERS;
+void GameHandler::loadGame(string fileName, bool testing) {
+    if (!fileHandler->loadFileCheck(fileName)) {
+        cout << endl 
+        << "File does not exist." << endl;
+    }
+    else {
+        tilebag = new LinkedList();
+        if (fileHandler->loadGame(fileName, this, tilebag, players, turns)) {
+            // simulate the turns
+            currentGame = new Game(tilebag);
+            int round = 0;
+            int j = NO_OF_PLAYERS;
 
-                int factoryNo = -1;
-                Tile tile = EMPTY_SLOT;
-                int storageRow = -1; 
+            int factoryNo = -1;
+            Tile tile = EMPTY_SLOT;
+            int storageRow = -1; 
 
-                bool loop = true;
-                for (unsigned int i = 0; i < turns->size() && loop; ++i) {
-                    loop = false;
-                    std::stringstream stream(turns->at(i));
-                    if (getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, false)) {
-                        if (validateTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false)) {
-                            playTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false);
-                            ++j;
-                            loop = true;
-                        } else {
-                            cout << endl << "Invalid turn format at: " << endl
-                            << i+1 << ": " << turns->at(i);
-                        }
+            bool loop = true;
+            for (unsigned int i = 0; i < turns->size() && loop; ++i) {
+                loop = false;
+                std::stringstream stream(turns->at(i));
+                if (getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, false)) {
+                    if (validateTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false)) {
+                        playTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false);
+                        ++j;
+                        loop = true;
                     } else {
-                        cout << endl << "Invalid turn with respect to game context at: " << endl
-                            << i+1 << ": " << turns->at(i);
+                        cout << endl << "Invalid turn format at: " << endl
+                        << i+1 << ": " << turns->at(i);
                     }
-                    if (currentGame->roundOver()) {
-                        endRound(false);
-                        if (i != NO_OF_ROUNDS - 1) {
-                            j = resetGameBoard();
-                        }
-                        ++round;
-                    }
+                } else {
+                    cout << endl << "Invalid turn with respect to game context at: " << endl
+                        << i+1 << ": " << turns->at(i);
                 }
+                if (currentGame->roundOver()) {
+                    endRound(false);
+                    if (i != NO_OF_ROUNDS - 1) {
+                        j = resetGameBoard();
+                    }
+                    ++round;
+                }
+            }
 
+            if (!testing) {
                 // continue game
                 playGame(round, j % NO_OF_PLAYERS);
 
                 endGame();
             }
+
         }
     }
-}
-
-void GameHandler::loadGameTesting(string fileName) {
-   if (!fileHandler->loadFileCheck(fileName)) {
-      cout << endl
-           << "File does not exist." << endl;
-   } else {
-      tilebag = new LinkedList();
-      if (fileHandler->loadGame(fileName, this, tilebag, players, turns)) {
-         // simulate the turns
-         currentGame = new Game(tilebag);
-         int round = 0;
-         int j = NO_OF_PLAYERS;
-
-         int factoryNo = -1;
-         Tile tile = EMPTY_SLOT;
-         int storageRow = -1;
-
-         bool loop = true;
-         for (unsigned int i = 0; i < turns->size() && loop; ++i) {
-            loop = false;
-            std::stringstream stream(turns->at(i));
-            if (getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, false)) {
-               if (validateTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false)) {
-                  playTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false);
-                  ++j;
-                  loop = true;
-               } else {
-                  cout << endl
-                       << "Invalid turn format at: " << endl
-                       << i + 1 << ": " << turns->at(i);
-               }
-            } else {
-               cout << endl
-                    << "Invalid turn with respect to game context at: " << endl
-                    << i + 1 << ": " << turns->at(i);
-            }
-            if (currentGame->roundOver()) {
-               endRound(false);
-               if (i != NO_OF_ROUNDS - 1) {
-                  j = resetGameBoard();
-               }
-               ++round;
-            }
-         }
-      }
-   }
 }
 
 void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame)
@@ -290,7 +235,7 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
 {
     bool invalidTurn = true;
     string validTiles = VALID_TURN_TILES;
-    string maxStorageRowValue = std::to_string(MOSAIC_DIM);
+    string maxStorageRowValue = std::to_string(MAX_STORAGE_ROW_VALUE);
 
     string command;
     string inputStorageRow;
@@ -329,6 +274,8 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
         // } while ((!fileNotFound && newGame1) || (!fileNotFound && !newGame1));
         if(*stream>>fileName){
             fileHandler->saveGame(fileName, tilebag, players, turns);
+        } else {
+            cout << "File name can't be empty" << endl;
         }
     } else if (command == "turn" || command == "TURN") {
         if (*stream >> *factoryNo && *factoryNo >= 0 && *factoryNo <= (NO_OF_FACTORIES - 1)) {
@@ -523,7 +470,7 @@ void GameHandler::testGame(string fileName) {
     
 
 
-   loadGameTesting(fileName);
+   loadGame(fileName, true);
    //print factories
    //check if load is successful
 

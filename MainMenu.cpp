@@ -13,6 +13,7 @@ void show_menu();
 void start_new_game();
 void load_game();
 void show_credits();
+void loadGame(GameHandler* gameHandler);
 
 int main(int argc, char** argv) {
    GameHandler* gameHandler = new GameHandler();
@@ -38,7 +39,7 @@ int main(int argc, char** argv) {
             if (input == "1") {
                gameHandler->playNewGame();
             } else if (input == "2") {
-               gameHandler->loadGame();
+               loadGame(gameHandler);
             } else if (input == "3") {
                show_credits();
             } else if (input == "4") {
@@ -81,4 +82,16 @@ void show_credits() {
       }
    }
    myFile.close();
+}
+
+void loadGame(GameHandler* gameHandler) {
+   string fileName;
+   cout << endl
+      << "Enter the filename from which to load a game: " << endl
+      << "> ";
+   if (std::getline(cin, fileName)) {
+      gameHandler->loadGame(fileName, false);
+   } else {
+      // return
+   }
 }

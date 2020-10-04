@@ -37,7 +37,7 @@ public:
     // add specified tile to given position in mosaic
     void addToWall(int row, int col, Tile tile);
 
-    // TODO - Description
+    // fills wall, and updates player points as per Azul rules
     int updateScore(Mosaic defaultMosaic, LinkedList* tilebag);
 
     // returns true if player has first-player tile

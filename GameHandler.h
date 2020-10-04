@@ -8,6 +8,8 @@
 #include "Game.h"
 #include "GameFileHandler.h"
 
+using std::string;
+
 class GameHandler {
 public:
     // initialises default mosaic
@@ -15,9 +17,7 @@ public:
 
     void playNewGame();
 
-    void loadGame();
-
-    void loadGameTesting(string fileName);
+    void loadGame(string fileName, bool testing);
     
     void playGame(int startingRound, int startingPlayer);
 

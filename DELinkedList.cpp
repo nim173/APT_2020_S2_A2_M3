@@ -13,11 +13,6 @@ LinkedList::LinkedList()
    size = 0;
 }
 
-LinkedList::LinkedList(const LinkedList &other)
-{
-   // TODO
-}
-
 LinkedList::~LinkedList()
 {
    clear();
@@ -119,5 +114,6 @@ void LinkedList::clear()
       current = next;
    }
    head = nullptr;
+   tail = nullptr;
    size = 0;
 }

@@ -21,7 +21,6 @@ class LinkedList
 {
 public:
    LinkedList();
-   LinkedList(const LinkedList &other);
    ~LinkedList();
 
    /**
