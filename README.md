@@ -1,4 +1,4 @@
-# COSC1076 - Programming Assignment 2  
+# COSC1076 - Programming Assignment 2 - Milestone 3 Enhancements -- Nimesh
 ## Semester 2 2020
 <ul>
 <li><b>Nimesh De Silva - S3831242</b></li>
