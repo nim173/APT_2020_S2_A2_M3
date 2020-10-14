@@ -101,7 +101,7 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
             valid = false;
         }
 
-        writeIntialBag(ss.str());
+        writeInitialBag(ss.str());
 
         // read player names
         if (valid) {
@@ -156,7 +156,6 @@ bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
                 ss << tiles.at(i);
             }
         }
-        writeIntialBag(ss.str());
         result = true;
     }
     else
@@ -197,8 +196,7 @@ bool GameFileHandler::loadMosaic(string file, Mosaic mosaic)
     return result;
 }
 
-void GameFileHandler::writeIntialBag(string intialBag){
-
+void GameFileHandler::writeInitialBag(string intialBag){
     std::ofstream initialBAG;
     initialBAG.open (INITIAL_TILEBAG_FILE);
     initialBAG << intialBag;

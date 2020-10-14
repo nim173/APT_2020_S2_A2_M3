@@ -98,7 +98,7 @@ std::string LinkedList::toString()
    Node* current = head;
    while( current != nullptr)
    {
-      result += std::string(1, current->value) + " ";
+      result += std::string(1, current->value);
       current = current->next;
    }
    return result;

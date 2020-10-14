@@ -88,7 +88,14 @@ std::string Player::printPlayerBoard() {
 
     // add broken tiles
     result += "broken: ";
-    result += floorLine->toString();
+    std::string floorLineString = floorLine->toString();
+    if (floorLineString != "") {
+        std::string floorLineWithSpacesString( 2 * floorLineString.size() - 1, ' ' );
+        for (unsigned int i = 0, j = 0; i < floorLineString.length(); i++, j+=2) {
+            floorLineWithSpacesString[j] = floorLineString[i];
+        }
+        result += floorLineWithSpacesString;
+    }
 
     result += "\n";
     return result;

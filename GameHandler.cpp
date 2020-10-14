@@ -42,6 +42,7 @@ void GameHandler::playNewGame()
 
         fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag);
         shuffleTilebag();
+        fileHandler->writeInitialBag(tilebag->toString());
         currentGame = new Game(tilebag);
 
         // play the game
