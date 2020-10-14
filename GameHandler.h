@@ -35,6 +35,8 @@ public:
 
     void printGameResults();
 
+    void shuffleTilebag();
+
 private:
     Player* players[NO_OF_PLAYERS];
 

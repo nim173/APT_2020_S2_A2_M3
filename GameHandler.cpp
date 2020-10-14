@@ -3,6 +3,7 @@
 #include <limits>
 #include <fstream>
 #include <sstream>
+#include <random>
 #include "GameHandler.h"
 #include "GameFileHandler.h"
 #include "Game.h"
@@ -40,6 +41,8 @@ void GameHandler::playNewGame()
              << "Let's Play!" << endl;
 
         fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag);
+        shuffleTilebag();
+        cout << tilebag->toString() << endl;
         currentGame = new Game(tilebag);
 
         // play the game
@@ -439,35 +442,43 @@ int GameHandler::resetGameBoard()
 }
 
 void GameHandler::testGame(string fileName) {
-    
-
-
-   loadGame(fileName, true);
-   //print factories
-   //check if load is successful
-
-   
+    loadGame(fileName, true);
+    //print factories
+    //check if load is successful
     if ((turns->size() > 0)) {
-      cout << endl
-           << endl
-           << "Factories:" << endl
-           << currentGame->printFactories() << endl;
+        cout << endl
+            << endl
+            << "Factories:" << endl
+            << currentGame->printFactories() << endl;
 
-      //print boards.
-      for (int i = 0; i < NO_OF_PLAYERS; i++) {
-         players[i]->printPlayerBoard();
+        //print boards.
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            players[i]->printPlayerBoard();
 
-         cout << endl
-              << "Score for player " << players[i]->getName() << ": " << players[i]->getPoints();
+            cout << endl
+                << "Score for player " << players[i]->getName() << ": " << players[i]->getPoints();
 
-         cout << endl
-              << "Mosaic for " << players[i]->getName() << ":" << endl
-              << players[i]->printPlayerBoard() << endl;
-      }
+            cout << endl
+                << "Mosaic for " << players[i]->getName() << ":" << endl
+                << players[i]->printPlayerBoard() << endl;
+        }
     }
     else {
         cout << "Load Failed." << endl;
     }   
 
     endGame();
+}
+
+void GameHandler::shuffleTilebag() {
+    std::random_device engine; 
+    // std::default_random_engine engine(seed);
+    int randValue = 0;
+    for (int i = tilebag->getSize(); i > 1; --i) {
+        std::uniform_int_distribution<int> uniform_dist(0, i);
+        randValue = uniform_dist(engine);
+        if (i != randValue) {
+            tilebag->swap(i, randValue);
+        }
+    }
 }

@@ -43,6 +43,9 @@ public:
     */
    std::string toString();
 
+   // swap the tiles at the specified indexes
+   void swap(int i, int j);
+
    /**
     * Removes all values from the Linked List
     */

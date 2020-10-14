@@ -104,6 +104,36 @@ std::string LinkedList::toString()
    return result;
 }
 
+void LinkedList::swap(int i, int j) {
+   if (i <= size && j <= size) {
+      if (j < i) {
+         int temp = i;
+         i = j;
+         j = temp;
+      } // to iterate to the smaller value first, swap i and j
+
+      Node *nodeI = nullptr;
+      Node *nodeJ = nullptr;
+      Node *current = head;
+      int currNode = 1;
+      while (current != nullptr && currNode <= j+1) {
+         if (currNode == i) {
+            nodeI = current;
+         }
+         if (currNode == j) {
+            nodeJ = current;
+         }
+         current = current->next;
+         ++currNode;
+      }
+
+      // swap tiles
+      Tile tempTile = nodeI->value;
+      nodeI->value = nodeJ->value;
+      nodeJ->value = tempTile;
+   }
+}
+
 void LinkedList::clear()
 {
    Node *current = head;
