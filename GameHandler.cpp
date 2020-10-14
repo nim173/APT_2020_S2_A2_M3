@@ -42,7 +42,6 @@ void GameHandler::playNewGame()
 
         fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag);
         shuffleTilebag();
-        cout << tilebag->toString() << endl;
         currentGame = new Game(tilebag);
 
         // play the game
@@ -475,7 +474,7 @@ void GameHandler::shuffleTilebag() {
     // std::default_random_engine engine(seed);
     int randValue = 0;
     for (int i = tilebag->getSize(); i > 1; --i) {
-        std::uniform_int_distribution<int> uniform_dist(0, i);
+        std::uniform_int_distribution<int> uniform_dist(1, i);
         randValue = uniform_dist(engine);
         if (i != randValue) {
             tilebag->swap(i, randValue);
