@@ -33,7 +33,7 @@ GameHandler::GameHandler()
     fileHandler->loadMosaic(DEFAULT_MOSAIC_FILE, defaultMosaicGrid);
 }
 
-void GameHandler::playNewGame()
+void GameHandler::playNewGame(bool fixedSeed, int seed)
 {
     if (addPlayers())
     {
@@ -41,7 +41,7 @@ void GameHandler::playNewGame()
              << "Let's Play!" << endl;
 
         fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag);
-        shuffleTilebag();
+        shuffleTilebag(fixedSeed, seed);
         fileHandler->writeInitialBag(tilebag->toString());
         currentGame = new Game(tilebag);
 
@@ -470,13 +470,17 @@ void GameHandler::testGame(string fileName) {
     endGame();
 }
 
-void GameHandler::shuffleTilebag() {
+void GameHandler::shuffleTilebag(bool fixedSeed, int seed) {
     std::random_device engine; 
-    // std::default_random_engine engine(seed);
+    std::default_random_engine fixedSeedEngine(seed);
     int randValue = 0;
     for (int i = tilebag->getSize(); i > 1; --i) {
         std::uniform_int_distribution<int> uniform_dist(1, i);
-        randValue = uniform_dist(engine);
+        if (fixedSeed != true) {
+            randValue = uniform_dist(engine);
+        } else {
+            randValue = uniform_dist(fixedSeedEngine);
+        }
         if (i != randValue) {
             tilebag->swap(i, randValue);
         }

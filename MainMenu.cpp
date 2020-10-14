@@ -17,16 +17,29 @@ void loadGame(GameHandler* gameHandler);
 
 int main(int argc, char** argv) {
    GameHandler* gameHandler = new GameHandler();
+   bool play = true;
+   bool fixedSeed = false;
+   int seed = -1;
 
    if (argc >= 3) {
       string operation = argv[1];
-      if(operation == "-t"){       
-
+      if (operation == "-t") {       
          // for (int i = 0; i < argc; ++i) 
          //    cout << argv[i] << "\n";
+         play = false;
          gameHandler->testGame(argv[2]);     
+      } else if (operation == "-s") {
+         string seedArg = argv[2];
+         if (seedArg.find_first_not_of( "0123456789" ) == string::npos) {
+            fixedSeed = true;
+            seed = std::stoi(seedArg);
+         } else {
+            play = false;
+            cout << "Error: Invalid seed provided" << endl;
+         }
       }      
-   } else {
+   } 
+   if (play != false) {
       cout << endl
            << "Welcome to Azul" << endl;
       cout << "---------------" << endl;
@@ -37,7 +50,7 @@ int main(int argc, char** argv) {
          cout << "> ";
          if (std::getline(cin, input)) {
             if (input == "1") {
-               gameHandler->playNewGame();
+               gameHandler->playNewGame(fixedSeed, seed);
             } else if (input == "2") {
                loadGame(gameHandler);
             } else if (input == "3") {

@@ -15,7 +15,7 @@ public:
     // initialises default mosaic
     GameHandler();
 
-    void playNewGame();
+    void playNewGame(bool fixedSeed, int seed);
 
     void loadGame(string fileName, bool testing);
     
@@ -34,8 +34,6 @@ public:
     int resetGameBoard();
 
     void printGameResults();
-
-    void shuffleTilebag();
 
 private:
     Player* players[NO_OF_PLAYERS];
@@ -65,6 +63,8 @@ private:
     void printPlayerPoints(string message);
 
     void endGame();
+
+    void shuffleTilebag(bool fixedSeed, int seed);
 };
 
 #endif // GAME_HANDLER
