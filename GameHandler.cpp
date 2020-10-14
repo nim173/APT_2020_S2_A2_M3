@@ -22,6 +22,8 @@ GameHandler::GameHandler()
 
     tilebag = new LinkedList();
 
+    boxLid = new LinkedList();
+
     turns = new vector<string>();
 
     // initialize defaultMosaic
@@ -31,6 +33,37 @@ GameHandler::GameHandler()
         defaultMosaicGrid[i] = new Tile[MOSAIC_DIM];
     }
     fileHandler->loadMosaic(DEFAULT_MOSAIC_FILE, defaultMosaicGrid);
+}
+
+GameHandler::~GameHandler() {
+    if (currentGame != nullptr) {
+        delete currentGame;
+        currentGame = nullptr;
+    }
+
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
+        if (players[i] != nullptr) {
+            delete players[i];
+            players[i] = nullptr;
+        }
+    }
+
+    if (tilebag != nullptr) {
+        delete tilebag;
+        tilebag = nullptr;
+    }
+    if (boxLid != nullptr) {
+        delete boxLid;
+        boxLid = nullptr;
+    }
+    if (turns != nullptr) {
+        delete turns;
+        turns = nullptr;
+    }
+    if (fileHandler != nullptr) {
+        delete fileHandler;
+        fileHandler = nullptr;
+    }
 }
 
 void GameHandler::playNewGame(bool fixedSeed, int seed)
@@ -43,7 +76,7 @@ void GameHandler::playNewGame(bool fixedSeed, int seed)
         fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag);
         shuffleTilebag(fixedSeed, seed);
         fileHandler->writeInitialBag(tilebag->toString());
-        currentGame = new Game(tilebag);
+        currentGame = new Game(tilebag, boxLid);
 
         // play the game
         playGame(0, NO_OF_PLAYERS);
@@ -66,6 +99,8 @@ void GameHandler::playGame(int startingRound, int startingPlayer)
         cout << endl
                 << "== START OF ROUND " << std::to_string(i+1) << " ==" << endl;
         while (!currentGame->roundOver() && notEOF) {
+            cout << tilebag->toString() << endl;
+            cout << boxLid->toString() << endl;
             cout << endl
                  << "TURN FOR PLAYER: " << players[j % NO_OF_PLAYERS]->getName() << endl
                  << "Factories:" << endl
@@ -127,6 +162,7 @@ void GameHandler::playGame(int startingRound, int startingPlayer)
 
 void GameHandler::endGame() {
     tilebag->clear();
+    boxLid->clear();
     turns->clear();
 
     delete currentGame;
@@ -144,10 +180,9 @@ void GameHandler::loadGame(string fileName, bool testing) {
         << "File does not exist." << endl;
     }
     else {
-        tilebag = new LinkedList();
         if (fileHandler->loadGame(fileName, this, tilebag, players, turns)) {
             // simulate the turns
-            currentGame = new Game(tilebag);
+            currentGame = new Game(tilebag, boxLid);
             int round = 0;
             int j = NO_OF_PLAYERS;
 
@@ -211,10 +246,10 @@ void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRo
     // add tile(s) to player storage row (and/or floor line)
     int num = players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
 
-    // add to tilebag if floor line of player is full
+    // add to lid box if floor line of player is full
     for (int i = 0; i < num; ++i)
     {
-        tilebag->addBack(tile);
+        boxLid->addBack(tile);
     }
 
     if (newGame)
@@ -373,7 +408,7 @@ void GameHandler::endRound(bool newGame)
     }
     for (int i = 0; i < NO_OF_PLAYERS; ++i)
     {
-        int points = players[i]->updateScore(defaultMosaicGrid, tilebag);
+        int points = players[i]->updateScore(defaultMosaicGrid, boxLid);
         if (newGame)
         {
             cout << "Player " + players[i]->getName() + ": " << std::to_string(points) << endl
@@ -432,12 +467,12 @@ int GameHandler::resetGameBoard()
     int result = -1;
     for (int i = 0; i < NO_OF_PLAYERS; ++i)
     {
-        if (players[i]->resetFloorline(tilebag))
+        if (players[i]->resetFloorline(boxLid))
         {
             result = i;
         }
     }
-    currentGame->populateFactories(tilebag);
+    currentGame->populateFactories(tilebag, boxLid);
     return result;
 }
 

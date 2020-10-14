@@ -37,11 +37,11 @@ public:
     // add specified tile to given position in mosaic
     void addToWall(int row, int col, Tile tile);
 
-    // fills wall, and updates player points as per Azul rules
-    int updateScore(Mosaic defaultMosaic, LinkedList* tilebag);
+    // fills wall, and updates player points as per Azul rules, and adds the remaining tiles to the box lid
+    int updateScore(Mosaic defaultMosaic, LinkedList* boxLid);
 
-    // returns true if player has first-player tile
-    bool resetFloorline(LinkedList* tilebag);
+    // returns true if player has first-player tile, adds the remaining tiles to the box lid
+    bool resetFloorline(LinkedList* boxLid);
     
 private:
     string name;

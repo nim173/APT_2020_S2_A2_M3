@@ -12,11 +12,11 @@ using std::vector;
 
 class Game {
 public:
-    Game(LinkedList* tilebag); 
+    Game(LinkedList* tilebag, LinkedList* boxLid); 
     ~Game();
 
     // called in the constructor and at the end of each round to populate factories from tilebag
-    void populateFactories(LinkedList* tilebag);
+    void populateFactories(LinkedList* tilebag, LinkedList* boxLid);
 
     // removes the specified tile from the specified factory and returns the number of instances of the tile found
     // and adds the remaining tiles to centre factory (if not rmeoving from centre factory)

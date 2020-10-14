@@ -3,12 +3,12 @@
 #include "Game.h"
 #include "Types.h"
 
-Game::Game(LinkedList* tilebag) {
+Game::Game(LinkedList* tilebag, LinkedList* boxLid) {
     // initialize factories
     for (int i = 0; i < NO_OF_FACTORIES; ++i) {
         factories[i] = new vector<Tile>();
     }
-    populateFactories(tilebag);
+    populateFactories(tilebag, boxLid);
 }
 
 Game::~Game() {
@@ -18,35 +18,24 @@ Game::~Game() {
     }
 }
 
-void Game::populateFactories(LinkedList* tilebag) {
+void Game::populateFactories(LinkedList* tilebag, LinkedList* boxLid) {
     // add first-player tile to centre factory
     factories[CENTER_FACTORY]->push_back('F');
 
     for (int i = 1; i < NO_OF_FACTORIES; ++i) {
         for (int j = 0; j < FACTORY_MAX_SIZE; ++j) {
-            factories[i]->push_back(tilebag->removeFront());
+            if (tilebag->getSize() == 0) {
+                int boxLidSize = boxLid->getSize();
+                for (int k = 0; k < boxLidSize; k++) {
+                    tilebag->addBack(boxLid->removeFront());
+                }
+            } // add from box lid if tile bag is empty
+            if (tilebag->getSize() != 0) {
+                factories[i]->push_back(tilebag->removeFront());
+            } // In the rare case that both tilebag and box lid is empty, stop filling the factories and continue the round
         }
     }
 }
-
-// int Game::removeFromFactory(int factoryNo, Tile tile){
-//     int toRemove[5] = {0};
-//     int count = 0;
-
-//     for(int i=0 ; i < (factories[factoryNo])->size(); i++){
-//         if((factories[factoryNo]->at(i)) == tile){
-//             toRemove[count] = i;
-//             count++;
-//         }
-//     }
-
-//     for(int i = 0; i< count; i++)
-//     {
-//         factories[factoryNo]->erase(factories[factoryNo]->begin() + toRemove[i]);
-//     }
-//     //return how many tiles were found.
-//     return count;
-// }
 
 //move all tiles in a factory to the center
 void Game::addToCentreFactory(int factoryNo){

@@ -14,6 +14,7 @@ class GameHandler {
 public:
     // initialises default mosaic
     GameHandler();
+    ~GameHandler();
 
     void playNewGame(bool fixedSeed, int seed);
 
@@ -39,6 +40,7 @@ private:
     Player* players[NO_OF_PLAYERS];
 
     LinkedList* tilebag;
+    LinkedList* boxLid;
 
     vector<string>* turns; 
 

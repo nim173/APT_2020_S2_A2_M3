@@ -163,7 +163,7 @@ void Player::addToWall(int row, int col, Tile tile) {
     wall[row][col] = tile;
 }
 
-int Player::updateScore(Mosaic defaultMosaic, LinkedList* tilebag) {
+int Player::updateScore(Mosaic defaultMosaic, LinkedList* boxLid) {
     // Go through pattern lines from top to bottom   
     int pointsToAdd = 0;
     Tile temp;
@@ -179,7 +179,7 @@ int Player::updateScore(Mosaic defaultMosaic, LinkedList* tilebag) {
 
                     // add all tiles from any pattern lines that now have no tile in the rightmost space to tilebag
                     for (unsigned int k = 0; k < i; ++k) {
-                        tilebag->addBack(temp);
+                        boxLid->addBack(temp);
                     }
                     for (unsigned int k = 0; k <= i; ++k) {
                         storageRow[i]->at(k) = EMPTY_SLOT;
@@ -250,7 +250,7 @@ int Player::updateScore(Mosaic defaultMosaic, LinkedList* tilebag) {
     return pointsToAdd;
 }
 
-bool Player::resetFloorline(LinkedList* tilebag) {
+bool Player::resetFloorline(LinkedList* boxLid) {
     bool result = false;
     Tile temp;
     while (floorLine->getSize() > 0) {
@@ -258,7 +258,7 @@ bool Player::resetFloorline(LinkedList* tilebag) {
         if (temp == FIRST_PLAYER_TILE) {
             result = true;
         } else {
-            tilebag->addBack(temp);
+            boxLid->addBack(temp);
         }
     }
     return result;
