@@ -1,5 +1,7 @@
-# COSC1076 - Programming Assignment 2 - Milestone 3 Enhancements -- Nimesh
-## Semester 2 2020
+# COSC1076 - Programming Assignment 2 - Milestone 3 Enhancements (Nimesh)
+Original repo - https://github.com/nim173/APT_2020_S2_A2.git
+
+## Group Members
 <ul>
 <li><b>Nimesh De Silva - S3831242</b></li>
 <li><b>Sean Aaron Morais - S3808041</b></li>  
