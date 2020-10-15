@@ -294,7 +294,7 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
     } else {
         maxStorageRowValue = std::to_string(ADV_MOSAIC_DIM+1);
     }
-    
+
     string command;
     string inputStorageRow;
     string fileName = " ", choice = " ";
@@ -383,32 +383,35 @@ bool GameHandler::addPlayers(bool advancedMode)
     cout << "Enter a name for player 1" << endl;
     string player1Name;
     cout << "> ";
-    if (std::getline(cin, player1Name))
-    {
-        cout << endl
-             << "Enter a name for player 2" << endl
-             << "> ";
-        string player2Name;
-        do
-        {
-            if (std::getline(cin, player2Name))
-            {
-                if (player1Name != player2Name)
-                {
-                    players[0] = new Player(player1Name, advancedMode);
-                    players[1] = new Player(player2Name, advancedMode);
-                    result = true;
-                }
-                else
-                {
-                    cout << "Error: Players cannot have the same name" << endl
-                         << endl
-                         << "Enter a name for player 2" << endl
-                         << "> ";
-                }
-            } // if not EOF
-        } while (!cin.eof() && player1Name == player2Name);
-    } // if not EOF
+    do {
+        if (std::getline(cin, player1Name)) {
+            if (player1Name.find_first_not_of(' ') != std::string::npos) {
+                cout << endl
+                    << "Enter a name for player 2" << endl
+                    << "> ";
+                string player2Name;
+                do {
+                    if (std::getline(cin, player2Name)) {
+                        if (player1Name != player2Name && (player2Name.find_first_not_of(' ') != std::string::npos)) {
+                            players[0] = new Player(player1Name, advancedMode);
+                            players[1] = new Player(player2Name, advancedMode);
+                            result = true;
+                        } else {
+                            cout << "Error: Players cannot have the same name or be empty" << endl
+                                 << endl
+                                 << "Enter another name for player 2" << endl
+                                 << "> ";
+                        } // if players have same name or player 2 name is empty
+                    } // if not EOF
+                } while (!cin.eof() && !result);
+            } else {
+                cout << "Error: Player name cannot be empty" << endl
+                     << endl
+                     << "Enter another name for player 1" << endl
+                     << "> ";
+            }
+        } // if not EOF
+    } while (!cin.eof() && !result);
 
     // returns true if both players added successfully
     // returns false if EOF
