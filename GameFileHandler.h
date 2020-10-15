@@ -18,7 +18,8 @@ public:
 
     void saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns);
 
-    bool loadGame(string fileName, GameHandler* gameHandler, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns);
+    bool loadGame(string fileName, GameHandler* gameHandler, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], 
+                    vector<string> *turns, bool* advancedMode);
 
     bool loadTileBag(string file, LinkedList* tilebag);
 
@@ -27,9 +28,9 @@ public:
     void toCharString(string fileName, char arr[], int size);
 
     void writeInitialBag(string intialBag);
-
-
 private:
+
+    bool addToTileBag(string tiles, LinkedList *tilebag);
 };
 
 #endif // GAME_FILE_HANDLER

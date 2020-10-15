@@ -64,24 +64,39 @@ GameHandler::~GameHandler() {
         delete fileHandler;
         fileHandler = nullptr;
     }
+
+    if (defaultMosaicGrid != nullptr) {
+        // delete defaultMosaicGrid
+        for (int i = 0; i != MOSAIC_DIM; ++i) {
+            delete[] defaultMosaicGrid[i];
+        }
+        delete[] defaultMosaicGrid;
+    }
 }
 
-void GameHandler::playNewGame(bool fixedSeed, int seed)
+void GameHandler::playNewGame(bool fixedSeed, int seed, bool advancedMode)
 {
-    if (addPlayers())
+    if (addPlayers(advancedMode))
     {
-        cout << endl
-             << "Let's Play!" << endl;
+        if (fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag)) {
+            cout << endl
+                 << "Let's Play!" << endl;
+            if (advancedMode) {
+                for (int i = 0; i < NUM_TILES_PER_COLOUR; ++i) {
+                    tilebag->addBack(ADV_MODE_SIXTH_TILE);
+                }
+            } // add 20 extra tiles of 'O' for the advanced mode
+            shuffleTilebag(fixedSeed, seed);
+            fileHandler->writeInitialBag(tilebag->toString());
+            currentGame = new Game(tilebag, boxLid);
 
-        fileHandler->loadTileBag(DEFAULT_TILEBAG_FILE, tilebag);
-        shuffleTilebag(fixedSeed, seed);
-        fileHandler->writeInitialBag(tilebag->toString());
-        currentGame = new Game(tilebag, boxLid);
+            // play the game
+            playGame(0, NO_OF_PLAYERS, advancedMode);
 
-        // play the game
-        playGame(0, NO_OF_PLAYERS);
-
-        endGame();
+            endGame();
+        } else {
+            cout << endl << "Error In File: " << DEFAULT_TILEBAG_FILE << endl;
+        }
     } // players added successfully
     else
     {
@@ -89,7 +104,7 @@ void GameHandler::playNewGame(bool fixedSeed, int seed)
     }
 }
 
-void GameHandler::playGame(int startingRound, int startingPlayer)
+void GameHandler::playGame(int startingRound, int startingPlayer, bool advancedMode)
 {
     bool notEOF = true;
     int j = startingPlayer;
@@ -122,9 +137,14 @@ void GameHandler::playGame(int startingRound, int startingPlayer)
                 storageRow = -1;
                 if (std::getline(cin, input)) {
                     std::stringstream stream(input);
-                    result = getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, true);
+                                            cout << "BEFORE PLAYER TURN" << endl;
+
+                    result = getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, true, advancedMode);
+                                                                cout << "AFTER PLAYER TURN" << endl;
+
                     if (result) {
                         result = validateTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, true);
+                        cout << "validated" << endl;
                     }
                 } else {
                     notEOF = false;
@@ -180,7 +200,8 @@ void GameHandler::loadGame(string fileName, bool testing) {
         << "File does not exist." << endl;
     }
     else {
-        if (fileHandler->loadGame(fileName, this, tilebag, players, turns)) {
+        bool advancedMode = false;
+        if (fileHandler->loadGame(fileName, this, tilebag, players, turns, &advancedMode)) {
             // simulate the turns
             currentGame = new Game(tilebag, boxLid);
             int round = 0;
@@ -194,7 +215,7 @@ void GameHandler::loadGame(string fileName, bool testing) {
             for (unsigned int i = 0; i < turns->size() && loop; ++i) {
                 loop = false;
                 std::stringstream stream(turns->at(i));
-                if (getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, false)) {
+                if (getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, false, advancedMode)) {
                     if (validateTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false)) {
                         playTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, false);
                         ++j;
@@ -218,7 +239,7 @@ void GameHandler::loadGame(string fileName, bool testing) {
 
             if (!testing) {
                 // continue game
-                playGame(round, j % NO_OF_PLAYERS);
+                playGame(round, j % NO_OF_PLAYERS, advancedMode);
 
                 endGame();
             }
@@ -227,18 +248,15 @@ void GameHandler::loadGame(string fileName, bool testing) {
     }
 }
 
-void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame)
-{
+void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame) {
     // remove tile(s) from relevant factory, obtain number of tiles removed
     int numTilesToAdd = currentGame->removeFromFactory(factoryNo, tile);
 
     // handle 'f' tile if specified factory is the centre factory (0)
     // if first element of centre factory is 'F', add f to floor line of player
-    if (factoryNo == 0 && currentGame->checkForFirstPlayerTile())
-    {
+    if (factoryNo == 0 && currentGame->checkForFirstPlayerTile()) {
         players[playerNo]->addToFloorLine(FIRST_PLAYER_TILE, 1);
-        if (newGame)
-        {
+        if (newGame) {
             cout << "Player " << players[playerNo]->getName() << " goes first next round" << endl;
         }
     }
@@ -247,13 +265,11 @@ void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRo
     int num = players[playerNo]->addToStorageRow(storageRow, tile, numTilesToAdd);
 
     // add to lid box if floor line of player is full
-    for (int i = 0; i < num; ++i)
-    {
+    for (int i = 0; i < num; ++i) {
         boxLid->addBack(tile);
     }
 
-    if (newGame)
-    {
+    if (newGame) {
         std::stringstream ss;
         ss << "turn ";
         ss << factoryNo;
@@ -269,17 +285,21 @@ void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRo
     }
 }
 
-bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile *tile, int *storageRow, bool newGame)
+bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile *tile, int *storageRow, bool newGame, bool advancedMode)
 {
-    bool invalidTurn = true;
     string validTiles = VALID_TURN_TILES;
-    string maxStorageRowValue = std::to_string(MAX_STORAGE_ROW_VALUE);
-
+    string maxStorageRowValue = "";
+    if (!advancedMode) {
+        maxStorageRowValue = std::to_string(MOSAIC_DIM+1);
+    } else {
+        maxStorageRowValue = std::to_string(ADV_MOSAIC_DIM+1);
+    }
+    
     string command;
     string inputStorageRow;
-
     string fileName = " ", choice = " ";
-
+    
+    bool invalidTurn = true;
     *stream >> command;
     if (newGame && (command == "save" || command == "SAVE")) {
         if(*stream>>fileName){
@@ -294,10 +314,11 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
             if (validTiles.find(*tile) != string::npos) {
                 *stream >> inputStorageRow;
                 invalidTurn = false;
-
-                if (inputStorageRow == "broken"||inputStorageRow == "6"){
-                    *storageRow = FLOOR_LINE_INDEX;
-                } else if(inputStorageRow.compare("1") >= 0 && inputStorageRow.compare(maxStorageRowValue) <= 0) {
+                cout << "im hereX"<<endl;
+                if (inputStorageRow == "broken" || inputStorageRow == "BROKEN"){
+                    *storageRow = std::stoi(maxStorageRowValue);
+                } else if(inputStorageRow.compare(std::to_string(MIN_STORAGE_ROW)) >= 0 
+                            && inputStorageRow.compare(maxStorageRowValue) <= 0) {
                     *storageRow = std::stoi(inputStorageRow);
                 } else {
                     invalidTurn = true;
@@ -344,7 +365,7 @@ bool GameHandler::validateTurn(int playerNo, int factoryNo, Tile tile, int stora
     return result;
 }
 
-bool GameHandler::addPlayers()
+bool GameHandler::addPlayers(bool advancedMode)
 {
     for (int i = 0; i < NO_OF_PLAYERS; ++i)
     {
@@ -374,8 +395,8 @@ bool GameHandler::addPlayers()
             {
                 if (player1Name != player2Name)
                 {
-                    players[0] = new Player(player1Name);
-                    players[1] = new Player(player2Name);
+                    players[0] = new Player(player1Name, advancedMode);
+                    players[1] = new Player(player2Name, advancedMode);
                     result = true;
                 }
                 else
@@ -394,29 +415,23 @@ bool GameHandler::addPlayers()
     return result;
 }
 
-void GameHandler::endRound(bool newGame)
-{
-    if (newGame)
-    {
-        for (int i = 0; i < NO_OF_PLAYERS; ++i)
-        {
+void GameHandler::endRound(bool newGame) {
+    if (newGame) {
+        for (int i = 0; i < NO_OF_PLAYERS; ++i) {
             cout << "Mosaic for Player " << players[i]->getName() << ":" << endl
                  << players[i]->printPlayerBoard() << endl;
         }
         cout << endl
              << "Points Scored:" << endl;
     }
-    for (int i = 0; i < NO_OF_PLAYERS; ++i)
-    {
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
         int points = players[i]->updateScore(defaultMosaicGrid, boxLid);
-        if (newGame)
-        {
+        if (newGame) {
             cout << "Player " + players[i]->getName() + ": " << std::to_string(points) << endl
                  << players[i]->printPlayerBoard() << endl;
         }
     }
-    if (newGame)
-    {
+    if (newGame) {
         printPlayerPoints("Total Points");
     }
 }

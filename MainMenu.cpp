@@ -20,29 +20,40 @@ int main(int argc, char** argv) {
    bool play = true;
    bool fixedSeed = false;
    int seed = -1;
+   bool advancedMode = false;
 
-   if (argc >= 3) {
+   if (argc >= 2) {
       string operation = argv[1];
-      if (operation == "-t") {       
-         // for (int i = 0; i < argc; ++i) 
-         //    cout << argv[i] << "\n";
-         play = false;
-         gameHandler->testGame(argv[2]);     
-      } else if (operation == "-s") {
-         string seedArg = argv[2];
-         if (seedArg.find_first_not_of( "0123456789" ) == string::npos) {
-            fixedSeed = true;
-            seed = std::stoi(seedArg);
-         } else {
-            play = false;
-            cout << "Error: Invalid seed provided" << endl;
+      if (argc == 2) {
+         if (operation == "--adv") {
+            advancedMode = true;
          }
-      }      
-   } 
+      } else if (argc >= 3) {
+         if (operation == "-t") {       
+            // for (int i = 0; i < argc; ++i) 
+            //    cout << argv[i] << "\n";
+            play = false;
+            gameHandler->testGame(argv[2]);     
+         } else if (operation == "-s") {
+            string seedArg = argv[2];
+            if (seedArg.find_first_not_of( "0123456789" ) == string::npos) {
+               fixedSeed = true;
+               seed = std::stoi(seedArg);
+            } else {
+               play = false;
+               cout << "Error: Invalid seed provided" << endl;
+            }
+         } 
+      } 
+   }
+
    if (play != false) {
       cout << endl
-           << "Welcome to Azul" << endl;
-      cout << "---------------" << endl;
+           << "Welcome to Azul";
+      if (advancedMode) {
+         cout << " (Advanced Mode)";
+      }
+      cout << endl << "---------------" << endl;
       bool loop = true;
       string input;
       do {
@@ -50,7 +61,7 @@ int main(int argc, char** argv) {
          cout << "> ";
          if (std::getline(cin, input)) {
             if (input == "1") {
-               gameHandler->playNewGame(fixedSeed, seed);
+               gameHandler->playNewGame(fixedSeed, seed, advancedMode);
             } else if (input == "2") {
                loadGame(gameHandler);
             } else if (input == "3") {

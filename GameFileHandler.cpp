@@ -70,41 +70,53 @@ void GameFileHandler::toCharString(string fileName, char arr[], int size)
 }
 
 bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, LinkedList *tileBag,
-         Player *players[NO_OF_PLAYERS], vector<string> *turns)
-{
-    std::stringstream ss;
-    bool valid = true;;
+         Player *players[NO_OF_PLAYERS], vector<string> *turns, bool* advancedMode) {
+    bool valid = true;
+    *advancedMode = false;
     std::ifstream readFile;
     std::ofstream tileBagFile;
     readFile.open(fileName);
     string line;
-    char ch;
     string validTiles = VALID_TURN_TILES;
     if (readFile.good()) {
-        // read tilebag
-        readFile.get(ch);
-        while (ch != '\n' && valid && !readFile.eof()) {
-            if (validTiles.find(ch) != string::npos) {
-                tileBag->addBack(ch);
-                ss << ch;
-            } else {
-                if (ch != '\r') {
-                    cout << endl <<"Error: Invalid characters found in tilebag" << endl;
+        if (std::getline(readFile, line)) {
+            if (line == NEW_SAVED_GAME_FORMAT) {
+                if (std::getline(readFile, line)) {
+                    if (line == ADV_SAVED_GAME) {
+                        *advancedMode = true;
+                        if (!std::getline(readFile, line)) {
+                            valid = false;
+                        } else {    
+                            // in advanced mode, continue to read tilebag
+                        }
+                    } else {
+                        // expected to read "advancedMode=on"
+                        valid = false;
+                    }
+                } else {
                     valid = false;
                 }
+            } else {
+                // not in advanced mode, continue to read tilebag
             }
-            readFile.get(ch);
-        }
-
-        if (valid && tileBag->getSize() < TILEBAG_MIN_SIZE) {
-            cout << endl << "Error: Tilebag is too small, should be atleast 100" << endl;
+        } else {
             valid = false;
         }
+        if (!valid) {
+            cout << endl <<"Error: In Saved Game file" << endl;
+        } else {
+            // read tilebag
+            valid = addToTileBag(line, tileBag);
 
-        writeInitialBag(ss.str());
+            if (valid && tileBag->getSize() < TILEBAG_MIN_SIZE) {
+                cout << endl << "Error: Tilebag is too small, should be atleast 100" << endl;
+                valid = false;
+            }
+        }
 
         // read player names
         if (valid) {
+            writeInitialBag(tileBag->toString());
             for (int i = 0; i < NO_OF_PLAYERS && valid; ++i) {
                 if (std::getline(readFile, line)) {
                     // remove /r from windows files
@@ -115,7 +127,7 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
                         delete players[i];
                         players[i] = nullptr;
                     }
-                    players[i] = new Player(line);
+                    players[i] = new Player(line, advancedMode);
                 } else {
                     cout << endl <<"Error: Can't read player " << i+1 << " name" << endl;
                     valid = false;
@@ -140,7 +152,6 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
 bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
 {
     tilebag->clear();
-    std::stringstream ss;
     bool result = false;
     std::ifstream inFile;
     inFile.open(file);
@@ -148,21 +159,29 @@ bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
     {
         string tiles;
         std::getline(inFile, tiles);
-        string validTiles = VALID_TURN_TILES;
-        for (unsigned int i = 0; i < tiles.length(); ++i)
-        {
-            if (validTiles.find(tiles.at(i)) != string::npos) {
-                tilebag->addBack(tiles.at(i));
-                ss << tiles.at(i);
-            }
-        }
-        result = true;
+        result = addToTileBag(tiles, tilebag);
     }
     else
     {
         // file not found
     }
     inFile.close();
+    return result;
+}
+
+bool GameFileHandler::addToTileBag(string tiles, LinkedList *tilebag) {
+    bool result = true;
+    string validTiles = VALID_TURN_TILES;
+    for (unsigned int i = 0; i < tiles.length() && result; ++i)
+    {
+        if (validTiles.find(tiles.at(i)) != string::npos) {
+            tilebag->addBack(tiles.at(i));
+        } else {
+            if (tiles.at(i) != '\r' || ' ') {
+                result = false;
+            }
+        }
+    }
     return result;
 }
 

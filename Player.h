@@ -11,7 +11,7 @@ using std::vector;
 
 class Player {
 public:
-    Player(string name);
+    Player(string name, bool advancedMode);
     ~Player();
 
     string getName();
@@ -46,12 +46,15 @@ public:
 private:
     string name;
     int points;
+    bool advancedMode;
 
     // Player Mosaic
     vector<Tile>* storageRow[MOSAIC_DIM];
     Mosaic wall;
 
     LinkedList* floorLine;
+
+    int getMosaicDim();
 };
 
 #endif // Player
