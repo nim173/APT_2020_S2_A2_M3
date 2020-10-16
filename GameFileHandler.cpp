@@ -34,17 +34,21 @@ bool GameFileHandler::loadFileCheck(string fileName)
     return result;
 }
 
-void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns)
+void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns, bool advancedMode)
 {
     //open/create the save file.
     std::ofstream saveFile;
     saveFile.open ("saveFiles/"+fileName);
+    if (advancedMode) {
+        saveFile << NEW_SAVED_GAME_FORMAT << endl
+                 << ADV_SAVED_GAME << endl;
+    }
 
     //first load the initial tileBag
     std::ifstream initialTileBagFile (INITIAL_TILEBAG_FILE);
     string initialTileBag; 
     initialTileBagFile >> initialTileBag;
-    saveFile << initialTileBag <<endl;
+    saveFile << initialTileBag << endl;
     initialTileBagFile.close();
 
     //save player names
@@ -106,10 +110,13 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
             cout << endl <<"Error: In Saved Game file" << endl;
         } else {
             // read tilebag
-            valid = addToTileBag(line, tileBag);
-
-            if (valid && tileBag->getSize() < TILEBAG_MIN_SIZE) {
-                cout << endl << "Error: Tilebag is too small, should be atleast 100" << endl;
+            if (addToTileBag(line, tileBag)) {
+                if (valid && tileBag->getSize() < TILEBAG_MIN_SIZE) {
+                    cout << endl << "Error: Tilebag is too small, should be atleast 100" << endl;
+                    valid = false;
+                }
+            } else {
+                cout << "Invalid Characters found in tilebag" << endl;
                 valid = false;
             }
         }
@@ -127,7 +134,7 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
                         delete players[i];
                         players[i] = nullptr;
                     }
-                    players[i] = new Player(line, advancedMode);
+                    players[i] = new Player(line, *advancedMode);
                 } else {
                     cout << endl <<"Error: Can't read player " << i+1 << " name" << endl;
                     valid = false;
@@ -177,7 +184,7 @@ bool GameFileHandler::addToTileBag(string tiles, LinkedList *tilebag) {
         if (validTiles.find(tiles.at(i)) != string::npos) {
             tilebag->addBack(tiles.at(i));
         } else {
-            if (tiles.at(i) != '\r' || ' ') {
+            if (tiles.at(i) != '\r' && tiles.at(i) != ' ') {
                 result = false;
             }
         }

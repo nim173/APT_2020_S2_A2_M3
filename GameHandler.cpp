@@ -130,21 +130,15 @@ void GameHandler::playGame(int startingRound, int startingPlayer, bool advancedM
 
             string input;
             bool result = true;
-            do
-            {
+            do {
                 factoryNo = -1;
                 tile = EMPTY_SLOT;
                 storageRow = -1;
                 if (std::getline(cin, input)) {
                     std::stringstream stream(input);
-                                            cout << "BEFORE PLAYER TURN" << endl;
-
                     result = getPlayerTurn(&stream, &factoryNo, &tile, &storageRow, true, advancedMode);
-                                                                cout << "AFTER PLAYER TURN" << endl;
-
                     if (result) {
                         result = validateTurn(j % NO_OF_PLAYERS, factoryNo, tile, storageRow, true);
-                        cout << "validated" << endl;
                     }
                 } else {
                     notEOF = false;
@@ -156,16 +150,21 @@ void GameHandler::playGame(int startingRound, int startingPlayer, bool advancedM
                 ++j;
             }
         }
-        if (notEOF)
-        {
+        if (notEOF) {
             cout << endl
                  << "===  END OF ROUND  ===" << endl;
-            cout << endl
-                 << "===  ROUND RESULT  ===" << endl;
-            endRound(true);
-
+            if (advancedMode) {
+                notEOF = advancedModeWallTiling();
+            }
+            if (notEOF) {
+                cout << endl
+                     << "===  ROUND RESULT  ===" << endl;
+            
+                endRound(true, advancedMode);
+            }
+            
             // reset game board for all rounds except the last
-            if (i != NO_OF_ROUNDS - 1)
+            if (i != NO_OF_ROUNDS - 1 && notEOF)
             {
                 j = resetGameBoard();
             }
@@ -185,12 +184,9 @@ void GameHandler::endGame() {
     boxLid->clear();
     turns->clear();
 
-    delete currentGame;
-    currentGame = nullptr;
-
-    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
-        delete players[i];
-        players[i] = nullptr;
+    if (currentGame != nullptr) {
+        delete currentGame;
+        currentGame = nullptr;
     }
 }
 
@@ -229,15 +225,40 @@ void GameHandler::loadGame(string fileName, bool testing) {
                         << i+1 << ": " << turns->at(i);
                 }
                 if (currentGame->roundOver()) {
-                    endRound(false);
-                    if (i != NO_OF_ROUNDS - 1) {
-                        j = resetGameBoard();
+                    if (advancedMode) {
+                        // simulate wall tiling
+                        for (int k = 0; k < NO_OF_PLAYERS; ++k) {
+                            int row = 0;
+                            for (row = 0; row < ADV_MOSAIC_DIM && loop; ++row) {
+                                if (players[k]->isFilled(row)) {
+                                    string input;
+                                    int wallCol;
+                                    loop = false;
+                                    wallCol = -1;
+                                    std::stringstream stream(turns->at(++i));
+                                    if (getPlayerWallTilePlacement(&stream, &wallCol, true)) {
+                                        Tile tile = EMPTY_SLOT;
+                                        if (players[k]->placeTileInWall(row, wallCol-1, &tile)) {
+                                            loop = true;
+                                            int points = players[k]->getPointsForAdjacentTiles(boxLid, row, wallCol-1, ADV_MOSAIC_DIM, tile);
+                                            players[k]->setPoints(players[k]->getPoints() + points);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                    ++round;
+                    if (loop) {
+                        endRound(false, advancedMode);
+                        if (i != NO_OF_ROUNDS - 1) {
+                            j = resetGameBoard();
+                        }
+                        ++round;
+                    }
                 }
             }
 
-            if (!testing) {
+            if (!testing && loop) {
                 // continue game
                 playGame(round, j % NO_OF_PLAYERS, advancedMode);
 
@@ -303,7 +324,7 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
     *stream >> command;
     if (newGame && (command == "save" || command == "SAVE")) {
         if(*stream>>fileName){
-            fileHandler->saveGame(fileName, tilebag, players, turns);
+            fileHandler->saveGame(fileName, tilebag, players, turns, advancedMode);
         } else {
             cout << "File name can't be empty" << endl;
         }
@@ -314,7 +335,6 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
             if (validTiles.find(*tile) != string::npos) {
                 *stream >> inputStorageRow;
                 invalidTurn = false;
-                cout << "im hereX"<<endl;
                 if (inputStorageRow == "broken" || inputStorageRow == "BROKEN"){
                     *storageRow = std::stoi(maxStorageRowValue);
                 } else if(inputStorageRow.compare(std::to_string(MIN_STORAGE_ROW)) >= 0 
@@ -351,13 +371,11 @@ bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile 
     return !invalidTurn;
 }
 
-bool GameHandler::validateTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame)
-{
+bool GameHandler::validateTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame) {
     string errorMessage = "Invalid turn: ";
     bool result = (currentGame->validateTurn(factoryNo, tile, &errorMessage) &&
                    players[playerNo]->validateTurn(tile, storageRow, &errorMessage));
-    if (!result && newGame)
-    {
+    if (!result && newGame) {
         cout << errorMessage << endl
              << "Enter turn again" << endl
              << "> ";
@@ -365,13 +383,11 @@ bool GameHandler::validateTurn(int playerNo, int factoryNo, Tile tile, int stora
     return result;
 }
 
-bool GameHandler::addPlayers(bool advancedMode)
-{
-    for (int i = 0; i < NO_OF_PLAYERS; ++i)
-    {
-        if (players[i] != nullptr)
-        {
+bool GameHandler::addPlayers(bool advancedMode) {
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
+        if (players[i] != nullptr) {
             delete players[i];
+            players[i] = nullptr;
         }
     }
 
@@ -418,25 +434,94 @@ bool GameHandler::addPlayers(bool advancedMode)
     return result;
 }
 
-void GameHandler::endRound(bool newGame) {
-    if (newGame) {
+void GameHandler::endRound(bool newGame, bool advancedMode) {
+    if (newGame && !advancedMode) {
         for (int i = 0; i < NO_OF_PLAYERS; ++i) {
             cout << "Mosaic for Player " << players[i]->getName() << ":" << endl
-                 << players[i]->printPlayerBoard() << endl;
+                << players[i]->printPlayerBoard() << endl;
         }
         cout << endl
-             << "Points Scored:" << endl;
+            << "Points Scored:" << endl;
     }
     for (int i = 0; i < NO_OF_PLAYERS; ++i) {
-        int points = players[i]->updateScore(defaultMosaicGrid, boxLid);
+        int points = players[i]->updateScore(defaultMosaicGrid, boxLid, advancedMode);
+        if (newGame && !advancedMode) {
+            cout << "Player " + players[i]->getName() + ": " << std::to_string(points) << endl;
+        }
         if (newGame) {
-            cout << "Player " + players[i]->getName() + ": " << std::to_string(points) << endl
-                 << players[i]->printPlayerBoard() << endl;
+            cout << players[i]->printPlayerBoard() << endl;
         }
     }
     if (newGame) {
         printPlayerPoints("Total Points");
     }
+}
+
+bool GameHandler::advancedModeWallTiling() {
+    bool notEOF = true;
+
+    cout << "Use the following command for wall tiling - 'place <wall column index(1-" 
+                << ADV_MOSAIC_DIM << ")>" << endl;
+
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
+        int row = 0;
+        for (row = 0; row < ADV_MOSAIC_DIM && notEOF; ++row) {
+            if (players[i]->isFilled(row)) {
+                cout << endl << "Mosaic for Player " << players[i]->getName() << ":" << endl
+                    << players[i]->printPlayerBoard() << endl
+                    << "For row " << (row+1) << endl
+                    << "> ";
+
+                string input;
+                bool result = true;
+                int wallCol;
+                do {
+                    wallCol = -1;
+                    if (std::getline(cin, input)) {
+                        std::stringstream stream(input);
+                        result = getPlayerWallTilePlacement(&stream, &wallCol, true);
+                        Tile tile = EMPTY_SLOT;
+                        if (result) {
+                            result = players[i]->placeTileInWall(row, wallCol-1, &tile);
+                            if (!result) {
+                                cout << "Column " << wallCol << " already filled in row " << row+1 << endl;
+                            }
+                        }
+                        if (!result) {
+                            cout << endl << "Enter command again" << endl << "> ";
+                        } else {
+                            // add move to turns
+                            turns->push_back("place " + std::to_string(wallCol));
+                            // add points gained from move to player
+                            int points = players[i]->getPointsForAdjacentTiles(boxLid, row, wallCol-1, ADV_MOSAIC_DIM, tile);
+                            players[i]->setPoints(players[i]->getPoints() + points);
+                            cout << "Points scored for move: " << points << endl;
+                        }
+                    } else {
+                        notEOF = false;
+                    }
+                } while (notEOF && !result);
+            }
+        }
+    }
+    return notEOF;
+}
+
+bool GameHandler::getPlayerWallTilePlacement(std::stringstream *stream, int *wallCol, bool newGame) {
+    bool invalidTurn = true;
+    string command;
+    *stream >> command;
+    if (command == "place" || command == "PLACE") {
+        if (*stream >> *wallCol && *wallCol >= 1 && *wallCol <= ADV_MOSAIC_DIM) {
+            invalidTurn = false;
+        } else {
+            cout << "Out of range for wall, pick from 1 to " << ADV_MOSAIC_DIM << endl;
+        }
+    } else {
+        cout << "Invalid command, use the following format" << endl
+             << "place <wall column index(1-" << ADV_MOSAIC_DIM << ")>" << endl;
+    }
+    return !invalidTurn;
 }
 
 void GameHandler::printGameResults()

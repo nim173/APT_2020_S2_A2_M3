@@ -17,6 +17,7 @@ public:
     string getName();
 
     int getPoints();
+    void setPoints(int points);
 
     string printPlayerBoard();
 
@@ -38,10 +39,18 @@ public:
     void addToWall(int row, int col, Tile tile);
 
     // fills wall, and updates player points as per Azul rules, and adds the remaining tiles to the box lid
-    int updateScore(Mosaic defaultMosaic, LinkedList* boxLid);
+    int updateScore(Mosaic defaultMosaic, LinkedList* boxLid, bool advancedMode);
 
     // returns true if player has first-player tile, adds the remaining tiles to the box lid
     bool resetFloorline(LinkedList* boxLid);
+
+    // returns true if specified row is full
+    bool isFilled(int row);
+
+    // places the tile in the filled row in given column, returns false if column is not empty
+    bool placeTileInWall(int row, int col, Tile *tile);
+
+    int getPointsForAdjacentTiles(LinkedList* boxLid, int row, int col, int mosaicDim, Tile tile);
     
 private:
     string name;
@@ -49,12 +58,15 @@ private:
     bool advancedMode;
 
     // Player Mosaic
-    vector<Tile>* storageRow[MOSAIC_DIM];
+    vector<Tile>** storageRow;
     Mosaic wall;
 
     LinkedList* floorLine;
 
     int getMosaicDim();
+
+    // calculate points to be deducted for tiles in floor line (as per official azul rules)
+    int caclulatefloorLinePointDeduction();
 };
 
 #endif // Player

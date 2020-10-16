@@ -14,6 +14,7 @@ Player::Player(std::string name, bool advancedMode) {
     int mosaicDim = getMosaicDim();
 
     // intialize storage rows
+    storageRow = new vector<Tile>*[mosaicDim];
     for (int i = 0; i < mosaicDim; ++i) {
         storageRow[i] = new vector<Tile>();
     }
@@ -40,19 +41,26 @@ Player::Player(std::string name, bool advancedMode) {
 
 Player::~Player() {
     int mosaicDim = getMosaicDim();
-
     // delete storage rows
     for (int i = 0; i < mosaicDim; ++i) {
-        delete storageRow[i];
+        if (storageRow[i] != nullptr) {
+            delete storageRow[i];
+            storageRow[i] = nullptr;
+        }
     }
+    delete[] storageRow;
+    storageRow = nullptr;
 
     // delete wall
     for (int i = 0; i != mosaicDim; ++i) {
-        delete[] wall[i];
+        delete wall[i];
+        wall[i] = nullptr;
     }
     delete[] wall;
+    wall = nullptr;
 
     delete floorLine;
+    floorLine = nullptr;
 }
 
 std::string Player::getName() {
@@ -61,6 +69,10 @@ std::string Player::getName() {
 
 int Player::getPoints() {
     return points;
+}
+
+void Player::setPoints(int points) {
+    this->points = points;
 }
 
 std::string Player::printPlayerBoard() {
@@ -178,87 +190,33 @@ void Player::addToWall(int row, int col, Tile tile) {
     wall[row][col] = tile;
 }
 
-int Player::updateScore(Mosaic defaultMosaic, LinkedList* boxLid) {
-    int mosaicDim = getMosaicDim();
-    // Go through pattern lines from top to bottom   
+int Player::updateScore(Mosaic defaultMosaic, LinkedList* boxLid, bool advancedMode) {
     int pointsToAdd = 0;
-    Tile temp;
-    for (int i = 0; i < mosaicDim; ++i) {
-        // check if a row is completed
-        temp = storageRow[i]->at(i);
-        if (temp != EMPTY_SLOT) {
-            ++pointsToAdd;
-            // For each complete line add a tile of the same color in the corresponding line of the wall
-            for (int j = 0; j < mosaicDim; ++j) {
-                if (temp == defaultMosaic[i][j]) {
-                    wall[i][j] = temp;
-
-                    // add all tiles from any pattern lines that now have no tile in the rightmost space to tilebag
-                    for (int k = 0; k < i; ++k) {
-                        boxLid->addBack(temp);
+    if (!advancedMode) {
+        int mosaicDim = getMosaicDim();
+        // Go through pattern lines from top to bottom   
+        Tile temp;
+        for (int i = 0; i < mosaicDim; ++i) {
+            // check if last tile of a row is completed
+            temp = storageRow[i]->at(i);
+            if (temp != EMPTY_SLOT) {
+                // For each complete line add a tile of the same color in the corresponding line of the wall
+                for (int j = 0; j < mosaicDim; ++j) {
+                    if (temp == defaultMosaic[i][j]) {
+                        wall[i][j] = temp;
+                        pointsToAdd += getPointsForAdjacentTiles(boxLid, i, j, mosaicDim, temp);
+                        // stops the loop
+                        j = mosaicDim;
                     }
-                    for (int k = 0; k <= i; ++k) {
-                        storageRow[i]->at(k) = EMPTY_SLOT;
-                    }
-                                        
-                    // Each time a tile is added to the wall, score points immediately (as per official rules)
-                    // check for vertically adjacent tiles
-                    for (int k = i-1; k >= 0; --k) {
-                        if (wall[k][j] != EMPTY_SLOT) {
-                            ++pointsToAdd;
-                        } else {
-                            // stops the loop
-                            k = -1;
-                        }
-                    }
-                    for (int k = i+1; k < mosaicDim; ++k) {
-                        if (wall[k][j] != EMPTY_SLOT) {
-                            ++pointsToAdd;
-                        } else {
-                            // stops the loop
-                            k = mosaicDim;
-                        }
-                    }
-
-                    // check for horizontally adjacent tiles
-                    for (int k = j-1; k >= 0; --k) {
-                        if (wall[i][k] != EMPTY_SLOT) {
-                            ++pointsToAdd;
-                        } else {
-                            // stops the loop
-                            k = -1;
-                        }
-                    }
-
-                    for (int k = j+1; k < mosaicDim; ++k) {
-                        if (wall[i][k] != EMPTY_SLOT) {
-                            ++pointsToAdd;
-                        } else {
-                            // stops the loop
-                            k = mosaicDim;
-                        }
-                    }
-
-                    // stops the loop
-                    j = mosaicDim;
                 }
-            }
-        } // if a row is completed
+            } // if a row is completed
+        }
     }
-    // decrease points for tiles in floor line (as per official azul rules)
-    int floorLineSize = floorLine->getSize();
-    if (floorLineSize >= 0 && floorLineSize < 3) {
-        pointsToAdd -= floorLineSize;
-    } else if (floorLineSize >= 3 && floorLineSize < 6) {
-        pointsToAdd -= (2*floorLineSize - 2);
-    } else if (floorLineSize == 6) {
-        pointsToAdd -= 11;
-    } else if (floorLineSize == 7) {
-        pointsToAdd -= 14;
-    } else {
-        pointsToAdd -= 18;
-    } // for 8 (or more) tiles
 
+    // decrease points for tiles in floor line (as per official azul rules)
+    pointsToAdd -= caclulatefloorLinePointDeduction();
+
+    // set points    
     this->points += pointsToAdd;
     if (this->points < 0) {
         // player score cannot be less than zero
@@ -266,6 +224,90 @@ int Player::updateScore(Mosaic defaultMosaic, LinkedList* boxLid) {
     }
 
     return pointsToAdd;
+}
+
+int Player::getPointsForAdjacentTiles(LinkedList* boxLid, int row, int col, int mosaicDim, Tile tile) {
+    // each tile placement in wall scores a minimum of 1 point
+    int pointsToAdd = 0;
+    // add all tiles from any pattern lines that now have no tile in the rightmost space to tilebag
+    for (int k = 0; k < row; ++k) {
+        boxLid->addBack(tile);
+    }
+    for (int k = 0; k <= row; ++k) {
+        storageRow[row]->at(k) = EMPTY_SLOT;
+    }
+                        
+    // Each time a tile is added to the wall, score points immediately (as per official rules)
+    // check for vertically adjacent tiles
+    bool verticallyAdjacentTilesFound = false;
+    for (int k = row-1; k >= 0; --k) {
+        if (wall[k][col] != EMPTY_SLOT) {
+            verticallyAdjacentTilesFound = true;
+            ++pointsToAdd;
+        } else {
+            // stops the loop
+            k = -1;
+        }
+    }
+    for (int k = row+1; k < mosaicDim; ++k) {
+        if (wall[k][col] != EMPTY_SLOT) {
+            verticallyAdjacentTilesFound = true;
+            ++pointsToAdd;
+        } else {
+            // stops the loop
+            k = mosaicDim;
+        }
+    }
+    if (verticallyAdjacentTilesFound) {
+        ++pointsToAdd;
+    }
+
+    // check for horizontally adjacent tiles
+    bool horizontallyAdjacentTilesFound = false;
+    for (int k = col-1; k >= 0; --k) {
+        if (wall[row][k] != EMPTY_SLOT) {
+            horizontallyAdjacentTilesFound = true;
+            ++pointsToAdd;
+        } else {
+            // stops the loop
+            k = -1;
+        }
+    }
+    for (int k = col+1; k < mosaicDim; ++k) {
+        if (wall[row][k] != EMPTY_SLOT) {
+            horizontallyAdjacentTilesFound = true;
+            ++pointsToAdd;
+        } else {
+            // stops the loop
+            k = mosaicDim;
+        }
+    }
+    if (horizontallyAdjacentTilesFound) {
+        ++pointsToAdd;
+    }
+
+    if (!verticallyAdjacentTilesFound && !horizontallyAdjacentTilesFound) {
+        ++pointsToAdd;
+    }
+
+    return pointsToAdd;
+}
+
+int Player::caclulatefloorLinePointDeduction() {
+    int pointsToDeduct = 0;
+    int floorLineSize = floorLine->getSize();
+    if (floorLineSize >= 0 && floorLineSize < 3) {
+        pointsToDeduct += floorLineSize;
+    } else if (floorLineSize >= 3 && floorLineSize < 6) {
+        pointsToDeduct += (2*floorLineSize - 2);
+    } else if (floorLineSize == 6) {
+        pointsToDeduct += 11;
+    } else if (floorLineSize == 7) {
+        pointsToDeduct += 14;
+    } else {
+        pointsToDeduct += 18;
+    } // for 8 (or more) tiles
+    return pointsToDeduct;
 }
 
 bool Player::resetFloorline(LinkedList* boxLid) {
@@ -290,4 +332,27 @@ int Player::getMosaicDim() {
         mosaicDim = ADV_MOSAIC_DIM;
     }
     return mosaicDim;
+}
+
+bool Player::isFilled(int row) {
+    int result = false;
+    int mosaicDim = getMosaicDim();
+    if (row >= 0 && row <= mosaicDim) {
+        if (storageRow[row]->at(row) != EMPTY_SLOT) {
+            result = true;
+        } // if a row is completed
+    }
+    return result;
+}
+
+bool Player::placeTileInWall(int row, int col, Tile *tile) {
+    bool result = true;
+    if (wall[row][col] == EMPTY_SLOT) {
+        Tile temp = storageRow[row]->at(row);
+        wall[row][col] = temp;
+        *tile = temp;
+    } else {
+        result = false;
+    }
+    return result;
 }

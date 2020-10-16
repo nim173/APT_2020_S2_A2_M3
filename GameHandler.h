@@ -28,7 +28,7 @@ public:
     void playTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame);
 
     // updates player scores and prints round results
-    void endRound(bool newGame);
+    void endRound(bool newGame, bool advancedMode);
 
     // repopulates factories and clears player floor line
     // returns the the index of the starting player for the next round
@@ -68,6 +68,10 @@ private:
     void endGame();
 
     void shuffleTilebag(bool fixedSeed, int seed);
+
+    bool advancedModeWallTiling();
+
+    bool getPlayerWallTilePlacement(std::stringstream *stream, int *wallCol, bool newGame);
 };
 
 #endif // GAME_HANDLER

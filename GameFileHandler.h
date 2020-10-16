@@ -16,10 +16,11 @@ public:
 
     bool loadFileCheck(string fileName);
 
-    void saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns);
+    void saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], 
+                    vector<string> *turns, bool advancedMode);
 
-    bool loadGame(string fileName, GameHandler* gameHandler, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], 
-                    vector<string> *turns, bool* advancedMode);
+    bool loadGame(string fileName, GameHandler* gameHandler, LinkedList *tileBag, 
+            Player *players[NO_OF_PLAYERS], vector<string> *turns, bool* advancedMode);
 
     bool loadTileBag(string file, LinkedList* tilebag);
 
