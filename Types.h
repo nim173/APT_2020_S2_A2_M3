@@ -21,9 +21,13 @@
 #define NUM_TILES_PER_COLOUR    20
 #define ADV_MODE_SIXTH_TILE     'O'   
 #define MIN_STORAGE_ROW         1
+#define CPU_PLAYER_NO           1
+#define FLOOR_LINE_INDEX        5
 
 #define NEW_SAVED_GAME_FORMAT   "#myformat"
 #define ADV_SAVED_GAME          "advancedMode=on"
+#define AI_SAVED_GAME           "AIMode=on"
+
 
 typedef char Tile;
 typedef char** Mosaic;

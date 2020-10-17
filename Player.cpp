@@ -9,6 +9,7 @@ Player::Player(std::string name, bool advancedMode) {
     this->name = name;
     points = 0;
     this->advancedMode = advancedMode;
+    cpu = false;
 
     // set mosaic dimensions depending on type of game play
     int mosaicDim = getMosaicDim();
@@ -204,7 +205,7 @@ int Player::updateScore(Mosaic defaultMosaic, LinkedList* boxLid, bool advancedM
                 for (int j = 0; j < mosaicDim; ++j) {
                     if (temp == defaultMosaic[i][j]) {
                         wall[i][j] = temp;
-                        pointsToAdd += getPointsForAdjacentTiles(boxLid, i, j, mosaicDim, temp);
+                        pointsToAdd += getPointsForAdjacentTiles(boxLid, i, j, mosaicDim, temp, false);
                         // stops the loop
                         j = mosaicDim;
                     }
@@ -226,15 +227,18 @@ int Player::updateScore(Mosaic defaultMosaic, LinkedList* boxLid, bool advancedM
     return pointsToAdd;
 }
 
-int Player::getPointsForAdjacentTiles(LinkedList* boxLid, int row, int col, int mosaicDim, Tile tile) {
+int Player::getPointsForAdjacentTiles(LinkedList* boxLid, int row, int col, 
+            int mosaicDim, Tile tile, bool AImode) {
     // each tile placement in wall scores a minimum of 1 point
     int pointsToAdd = 0;
     // add all tiles from any pattern lines that now have no tile in the rightmost space to tilebag
-    for (int k = 0; k < row; ++k) {
-        boxLid->addBack(tile);
-    }
-    for (int k = 0; k <= row; ++k) {
-        storageRow[row]->at(k) = EMPTY_SLOT;
+    if (!AImode) {
+        for (int k = 0; k < row; ++k) {
+            boxLid->addBack(tile);
+        }
+        for (int k = 0; k <= row; ++k) {
+            storageRow[row]->at(k) = EMPTY_SLOT;
+        }
     }
                         
     // Each time a tile is added to the wall, score points immediately (as per official rules)
@@ -335,12 +339,23 @@ int Player::getMosaicDim() {
 }
 
 bool Player::isFilled(int row) {
-    int result = false;
+    bool result = false;
     int mosaicDim = getMosaicDim();
-    if (row >= 0 && row <= mosaicDim) {
+    if (row >= 0 && row < mosaicDim) {
         if (storageRow[row]->at(row) != EMPTY_SLOT) {
             result = true;
         } // if a row is completed
+    }
+    return result;
+}
+
+int Player::numTilesInRow(int row) {
+    int result = 0;
+    int mosaicDim = getMosaicDim();
+    if (row >= 0 && row < mosaicDim) {
+        while (result <= row && storageRow[row]->at(result) != EMPTY_SLOT) {
+            ++result;
+        }
     }
     return result;
 }
@@ -353,6 +368,72 @@ bool Player::placeTileInWall(int row, int col, Tile *tile) {
         *tile = temp;
     } else {
         result = false;
+    }
+    return result;
+}
+
+void Player::setCpu(bool cpu) {
+    this->cpu = cpu;
+}
+
+bool Player::isCpu() {
+    return cpu;
+}
+
+int Player::getPointsForTurn(Mosaic mosaic, Tile tile, int storageRow, int numTiles, int *excess) {
+    int result = 0;
+    // get number of empty slots in row
+    int emptySlots = 0;
+    if (storageRow != FLOOR_LINE_INDEX) {
+        for (int i = 0; i < storageRow+1; i++) {
+            if (this->storageRow[storageRow]->at(i) == EMPTY_SLOT) {
+                ++emptySlots;
+            }
+        }
+        if (numTiles >= emptySlots) {
+            // find slot in wall for tile
+            for (int i = 0; i < MOSAIC_DIM; i++) {
+                if (mosaic[storageRow][i] == tile) {
+                    result += getPointsForAdjacentTiles(nullptr, storageRow, i, MOSAIC_DIM, tile, true);
+                    // stop the loop
+                    i = MOSAIC_DIM;
+                }
+            }
+        }
+    }
+    if (numTiles > emptySlots) {
+        // decrease points according to floor line rules
+        if (floorLine->getSize() < FLOOR_LINE_MAX_SIZE) {
+            numTiles -= emptySlots;
+            *excess += numTiles;
+            if (FLOOR_LINE_MAX_SIZE - floorLine->getSize() < *excess) {
+                *excess = FLOOR_LINE_MAX_SIZE - floorLine->getSize();
+            }
+            int temp = *excess;
+            for (int i = floorLine->getSize(); i < FLOOR_LINE_MAX_SIZE && temp != 0; ++i) {
+                if (i >= 0 && i < 2) {
+                    result -= 1;
+                } else if (i >= 2 && i < 5) {
+                    result -= 2;
+                } else if (i >= 5 && i < 7) {
+                    result -= 3;
+                }
+                --temp;
+            }
+        } // if floor line is not full
+    } // if there is excess tiles
+    
+    return result;
+}
+
+bool Player::isStorageRowsEmpty() {
+    bool result = true;
+    for (int i = 0; i < getMosaicDim(); ++i) {
+        if (storageRow[i]->at(0) != EMPTY_SLOT) {
+            result = false;
+            // stop the loop
+            i = getMosaicDim();
+        }
     }
     return result;
 }

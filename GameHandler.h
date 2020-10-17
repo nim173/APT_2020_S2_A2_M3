@@ -16,11 +16,11 @@ public:
     GameHandler();
     ~GameHandler();
 
-    void playNewGame(bool fixedSeed, int seed, bool advancedMode);
+    void playNewGame(bool fixedSeed, int seed, bool advancedMode, bool AImode);
 
     void loadGame(string fileName, bool testing);
     
-    void playGame(int startingRound, int startingPlayer, bool advancedMode);
+    void playGame(int startingRound, int startingPlayer, bool advancedMode, bool AImode);
 
     void testGame(string fileName);
 
@@ -52,14 +52,14 @@ private:
     // used as reference to fill player mosaics
     Mosaic defaultMosaicGrid;
 
-    bool addPlayers(bool advancedMode);
+    bool addPlayers(bool advancedMode, bool AImode);
 
     bool saveGame();
 
     // gets turn input and does input error checking (does not check for game rules)
     // returns false if EOF encountered
     bool getPlayerTurn(std::stringstream* stream, int *factoryNo, Tile *tile, int *storageRow,
-                         bool newGame, bool advancedMode);
+                         bool newGame, bool advancedMode, bool AImode);
 
     bool validateTurn(int playerNo, int factoryNo, Tile tile, int storageRow, bool newGame);
     
@@ -72,6 +72,8 @@ private:
     bool advancedModeWallTiling();
 
     bool getPlayerWallTilePlacement(std::stringstream *stream, int *wallCol, bool newGame);
+
+    void getAIturn(int *factoryNo, Tile *tile, int *storageRow);
 };
 
 #endif // GAME_HANDLER

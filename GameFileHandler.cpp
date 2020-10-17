@@ -34,14 +34,19 @@ bool GameFileHandler::loadFileCheck(string fileName)
     return result;
 }
 
-void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], vector<string> *turns, bool advancedMode)
+void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], 
+                            vector<string> *turns, bool advancedMode, bool AImode)
 {
     //open/create the save file.
     std::ofstream saveFile;
     saveFile.open ("saveFiles/"+fileName);
+    if (advancedMode || AImode) {
+        saveFile << NEW_SAVED_GAME_FORMAT << endl;
+    }
     if (advancedMode) {
-        saveFile << NEW_SAVED_GAME_FORMAT << endl
-                 << ADV_SAVED_GAME << endl;
+        saveFile << ADV_SAVED_GAME << endl;
+    } else if (AImode) {
+        saveFile << AI_SAVED_GAME << endl;
     }
 
     //first load the initial tileBag
@@ -74,7 +79,7 @@ void GameFileHandler::toCharString(string fileName, char arr[], int size)
 }
 
 bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, LinkedList *tileBag,
-         Player *players[NO_OF_PLAYERS], vector<string> *turns, bool* advancedMode) {
+         Player *players[NO_OF_PLAYERS], vector<string> *turns, bool* advancedMode, bool* AImode) {
     bool valid = true;
     *advancedMode = false;
     std::ifstream readFile;
@@ -86,15 +91,19 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
         if (std::getline(readFile, line)) {
             if (line == NEW_SAVED_GAME_FORMAT) {
                 if (std::getline(readFile, line)) {
-                    if (line == ADV_SAVED_GAME) {
-                        *advancedMode = true;
+                    if (line == ADV_SAVED_GAME || line == AI_SAVED_GAME) {
+                        if (line == ADV_SAVED_GAME) {
+                            *advancedMode = true;
+                        } else {
+                            *AImode = true;
+                        }
                         if (!std::getline(readFile, line)) {
                             valid = false;
                         } else {    
                             // in advanced mode, continue to read tilebag
                         }
                     } else {
-                        // expected to read "advancedMode=on"
+                        // expected to read "advancedMode=on" or "AImode=on"
                         valid = false;
                     }
                 } else {
@@ -135,6 +144,9 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
                         players[i] = nullptr;
                     }
                     players[i] = new Player(line, *advancedMode);
+                    if (*AImode && i == NO_OF_PLAYERS - 1) {
+                        players[i]->setCpu(true);
+                    }
                 } else {
                     cout << endl <<"Error: Can't read player " << i+1 << " name" << endl;
                     valid = false;
@@ -228,4 +240,3 @@ void GameFileHandler::writeInitialBag(string intialBag){
     initialBAG << intialBag;
     initialBAG.close();
 }
-

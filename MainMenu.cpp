@@ -21,13 +21,16 @@ int main(int argc, char** argv) {
    bool fixedSeed = false;
    int seed = -1;
    bool advancedMode = false;
+   bool AImode = false;
 
    if (argc >= 2) {
       string operation = argv[1];
       if (argc == 2) {
          if (operation == "--adv") {
             advancedMode = true;
-         }
+         } else if (operation == "--ai") {
+            AImode = true;
+         } 
       } else if (argc >= 3) {
          if (operation == "-t") {       
             // for (int i = 0; i < argc; ++i) 
@@ -52,6 +55,8 @@ int main(int argc, char** argv) {
            << "Welcome to Azul";
       if (advancedMode) {
          cout << " (Advanced Mode)";
+      } else if (AImode) {
+         cout << " (AI Mode)";
       }
       cout << endl << "---------------" << endl;
       bool loop = true;
@@ -61,7 +66,7 @@ int main(int argc, char** argv) {
          cout << "> ";
          if (std::getline(cin, input)) {
             if (input == "1") {
-               gameHandler->playNewGame(fixedSeed, seed, advancedMode);
+               gameHandler->playNewGame(fixedSeed, seed, advancedMode, AImode);
             } else if (input == "2") {
                loadGame(gameHandler);
             } else if (input == "3") {

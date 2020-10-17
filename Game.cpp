@@ -92,11 +92,13 @@ std::string Game::printFactories() {
     return result;
 }
 
-bool Game::checkForFirstPlayerTile() {
+bool Game::checkForFirstPlayerTile(bool AImode) {
     bool result = false;
     if (!factories[0]->empty()) {
         if (factories[0]->at(0) == FIRST_PLAYER_TILE) {
-            factories[0]->erase(factories[0]->begin());
+            if (!AImode) {
+                factories[0]->erase(factories[0]->begin());
+            }
             result = true;
         }
     } 
@@ -116,6 +118,16 @@ int Game::removeFromFactory(int factoryNo, Tile tile) {
     // add the remaining tiles in this factory to centre factory
     if (factoryNo != CENTER_FACTORY) {
         addToCentreFactory(factoryNo);
+    }
+    return result;
+}
+
+int Game::getNumberOfTiles(int factoryNo, Tile tile) {
+    int result = 0;
+    for (unsigned int i = 0; i < factories[factoryNo]->size(); ++i) {
+        if (factories[factoryNo]->at(i) == tile) {
+            ++result;
+        }
     }
     return result;
 }

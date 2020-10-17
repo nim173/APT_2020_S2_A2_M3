@@ -47,15 +47,26 @@ public:
     // returns true if specified row is full
     bool isFilled(int row);
 
+    // returns the number of tiles in row
+    int numTilesInRow(int row);
+
     // places the tile in the filled row in given column, returns false if column is not empty
     bool placeTileInWall(int row, int col, Tile *tile);
 
-    int getPointsForAdjacentTiles(LinkedList* boxLid, int row, int col, int mosaicDim, Tile tile);
+    int getPointsForAdjacentTiles(LinkedList* boxLid, int row, int col, int mosaicDim, Tile tile, bool AImode);
+
+    void setCpu(bool cpu);
+    bool isCpu();
+
+    bool isStorageRowsEmpty();
+
+    int getPointsForTurn(Mosaic mosaic, Tile tile, int storageRow, int numTiles, int *excess);
     
 private:
     string name;
     int points;
     bool advancedMode;
+    bool cpu;
 
     // Player Mosaic
     vector<Tile>** storageRow;

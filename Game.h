@@ -30,9 +30,12 @@ public:
     bool validateTurn(int factoryNo, Tile tile, string* errorMessage);
 
     // returns true and removes the  FIRST_PLAYER_TILE if it is at the first position of the centre factory
-    bool checkForFirstPlayerTile();
+    bool checkForFirstPlayerTile(bool AImode);
 
     std::string printFactories();
+
+    // get number of tiles of specified type in specified factory
+    int getNumberOfTiles(int factoryNo, Tile tile);
 
 private:
     // an array of vectors for the the central factory + 5 factories
