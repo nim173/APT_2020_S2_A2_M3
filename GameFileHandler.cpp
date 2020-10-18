@@ -12,22 +12,20 @@ using std::cout;
 using std::endl;
 using std::string;
 
-GameFileHandler::GameFileHandler()
-{
+GameFileHandler::GameFileHandler(){
+    
 }
 
-GameFileHandler::~GameFileHandler()
-{
+GameFileHandler::~GameFileHandler(){
+
 }
 
-bool GameFileHandler::loadFileCheck(string fileName)
-{
+bool GameFileHandler::loadFileCheck(string fileName) {
     std::ifstream file;
     file.open(fileName);
     bool result = false;
 
-    if (file.good())
-    {
+    if (file.good()) {
         result = true;
     }
 
@@ -35,8 +33,7 @@ bool GameFileHandler::loadFileCheck(string fileName)
 }
 
 void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *players[NO_OF_PLAYERS], 
-                            vector<string> *turns, bool advancedMode, bool AImode)
-{
+                            vector<string> *turns, bool advancedMode, bool AImode) {
     //open/create the save file.
     std::ofstream saveFile;
     saveFile.open ("saveFiles/"+fileName);
@@ -70,10 +67,8 @@ void GameFileHandler::saveGame(string fileName, LinkedList *tileBag, Player *pla
     cout << "Save Successful!" << endl;
 }
 
-void GameFileHandler::toCharString(string fileName, char arr[], int size)
-{
-    for (int i = 0; i < size; i++)
-    {
+void GameFileHandler::toCharString(string fileName, char arr[], int size) {
+    for (int i = 0; i < size; i++) {
         arr[i] = fileName[i];
     }
 }
@@ -168,20 +163,17 @@ bool GameFileHandler::loadGame(string fileName, GameHandler* gameHandler, Linked
     return valid;
 }
 
-bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
-{
+bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag) {
     tilebag->clear();
     bool result = false;
     std::ifstream inFile;
     inFile.open(file);
-    if (inFile.good())
-    {
+    if (inFile.good()) {
         string tiles;
         std::getline(inFile, tiles);
         result = addToTileBag(tiles, tilebag);
     }
-    else
-    {
+    else {
         // file not found
     }
     inFile.close();
@@ -191,8 +183,7 @@ bool GameFileHandler::loadTileBag(string file, LinkedList *tilebag)
 bool GameFileHandler::addToTileBag(string tiles, LinkedList *tilebag) {
     bool result = true;
     string validTiles = VALID_TURN_TILES;
-    for (unsigned int i = 0; i < tiles.length() && result; ++i)
-    {
+    for (unsigned int i = 0; i < tiles.length() && result; ++i) {
         if (validTiles.find(tiles.at(i)) != string::npos) {
             tilebag->addBack(tiles.at(i));
         } else {
@@ -204,30 +195,24 @@ bool GameFileHandler::addToTileBag(string tiles, LinkedList *tilebag) {
     return result;
 }
 
-bool GameFileHandler::loadMosaic(string file, Mosaic mosaic)
-{
+bool GameFileHandler::loadMosaic(string file, Mosaic mosaic) {
     bool result = false;
     std::ifstream inFile;
     inFile.open(file);
-    if (inFile.good())
-    {
+    if (inFile.good()) {
         char ch;
-        for (int i = 0; i < MOSAIC_DIM; ++i)
-        {
-            for (int j = 0; j < MOSAIC_DIM;)
-            {
+        for (int i = 0; i < MOSAIC_DIM; ++i) {
+            for (int j = 0; j < MOSAIC_DIM;) {
                 inFile.get(ch);
                 // accounting for newline characters
-                if (ch != '\n' && ch != '\r' && ch != ' ')
-                {
+                if (ch != '\n' && ch != '\r' && ch != ' ') {
                     mosaic[i][j] = ch;
                     ++j;
                 }
             }
         }
     }
-    else
-    {
+    else {
         // file not found
     }
     inFile.close();

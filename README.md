@@ -1,20 +1,22 @@
 # COSC1076 - Programming Assignment 2 - Milestone 3 Enhancements (Nimesh)
-Original repo - https://github.com/nim173/APT_2020_S2_A2.git
-
-## Group Members
-<ul>
-<li><b>Nimesh De Silva - S3831242</b></li>
-<li><b>Sean Aaron Morais - S3808041</b></li>  
-<li><b>Ryan Fant Peterson - S3817175</b></li>  
-</ul>
-<br>
-<br>
-<br>
+Original repo (Milestone 2) - https://github.com/nim173/APT_2020_S2_A2.git
 
 # Run Instructions  
 ## Basic Usage:  
 1. `make`  
 2. run using `./APT_2020_S2_A2`  
+
+## Single Player (CPU)
+1. `make`
+2. run using `./APT_2020_S2_A2 --ai`
+
+## Advanced Mode (6-tile and Gray Board)
+1. `make`
+2. run using `./APT_2020_S2_A2 --adv`
+
+## Fixed seed for shuffling tilebag
+1. `make`
+2. run using `./APT_2020_S2_A2 -s <seed>`
 
 ## Testing  
 1. `make`  

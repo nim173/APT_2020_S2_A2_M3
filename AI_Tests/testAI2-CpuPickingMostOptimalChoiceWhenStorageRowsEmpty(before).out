@@ -1,28 +1,27 @@
 
-Invalid turn format at: 
-3: TURN 3 B 1
-
 
 Factories:
-0: F Y U R L Y U 
-1: B U R L 
-2: 
-3: 
-4: R L Y B 
-5: U R L Y 
+0: F R R 
+1: Y Y Y U 
+2: L U Y R 
+3: R Y B R 
+4: 
+5: L B U R 
 
 
+Score for player A: 0
 Mosaic for A:
-1:         B || . . . . .
-2:       . . || . . . . .
+1:         . || . . . . .
+2:       Y Y || . . . . .
 3:     . . . || . . . . .
 4:   . . . . || . . . . .
 5: . . . . . || . . . . .
 broken: 
 
 
-Mosaic for B:
-1:         B || . . . . .
+Score for CPU : 0
+Mosaic for CPU:
+1:         . || . . . . .
 2:       . . || . . . . .
 3:     . . . || . . . . .
 4:   . . . . || . . . . .

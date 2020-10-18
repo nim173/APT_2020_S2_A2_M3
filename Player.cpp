@@ -187,10 +187,6 @@ int Player::addToFloorLine(Tile tile, int numTilesToAdd) {
     return numTilesToAdd;
 }
 
-void Player::addToWall(int row, int col, Tile tile) {
-    wall[row][col] = tile;
-}
-
 int Player::updateScore(Mosaic defaultMosaic, LinkedList* boxLid, bool advancedMode) {
     int pointsToAdd = 0;
     if (!advancedMode) {
@@ -262,9 +258,10 @@ int Player::getPointsForAdjacentTiles(LinkedList* boxLid, int row, int col,
             k = mosaicDim;
         }
     }
+    // if vertically adjacent tiles found, add 1 more point
     if (verticallyAdjacentTilesFound) {
         ++pointsToAdd;
-    }
+    } 
 
     // check for horizontally adjacent tiles
     bool horizontallyAdjacentTilesFound = false;
@@ -286,10 +283,12 @@ int Player::getPointsForAdjacentTiles(LinkedList* boxLid, int row, int col,
             k = mosaicDim;
         }
     }
+    // if horizontally adjacent tiles found, add 1 more point
     if (horizontallyAdjacentTilesFound) {
         ++pointsToAdd;
     }
 
+    // if no vertically and horizontally adjacent tiles found, add 1 point
     if (!verticallyAdjacentTilesFound && !horizontallyAdjacentTilesFound) {
         ++pointsToAdd;
     }
@@ -298,6 +297,7 @@ int Player::getPointsForAdjacentTiles(LinkedList* boxLid, int row, int col,
 }
 
 int Player::caclulatefloorLinePointDeduction() {
+    // see Azul game rules
     int pointsToDeduct = 0;
     int floorLineSize = floorLine->getSize();
     if (floorLineSize >= 0 && floorLineSize < 3) {

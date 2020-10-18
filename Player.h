@@ -35,9 +35,6 @@ public:
     // add broken tiles to floor line
     int addToFloorLine(Tile tile, int numTilesToAdd);
 
-    // add specified tile to given position in mosaic
-    void addToWall(int row, int col, Tile tile);
-
     // fills wall, and updates player points as per Azul rules, and adds the remaining tiles to the box lid
     int updateScore(Mosaic defaultMosaic, LinkedList* boxLid, bool advancedMode);
 
@@ -53,6 +50,7 @@ public:
     // places the tile in the filled row in given column, returns false if column is not empty
     bool placeTileInWall(int row, int col, Tile *tile);
 
+    // calculates total points generated from adding a tile to a specified position in wall
     int getPointsForAdjacentTiles(LinkedList* boxLid, int row, int col, int mosaicDim, Tile tile, bool AImode);
 
     void setCpu(bool cpu);
@@ -60,12 +58,17 @@ public:
 
     bool isStorageRowsEmpty();
 
+    // used in AI mode to calculate the possible points from a valid move
+    // sets excess to the amount of tiles that would go in to floor line from move
     int getPointsForTurn(Mosaic mosaic, Tile tile, int storageRow, int numTiles, int *excess);
     
 private:
     string name;
     int points;
+    
     bool advancedMode;
+
+    // if the player is CPU or not, also a check for AI mode
     bool cpu;
 
     // Player Mosaic
@@ -74,6 +77,7 @@ private:
 
     LinkedList* floorLine;
 
+    // returns current mosaic dimensions, 6 if in advanced mode, 5 if not
     int getMosaicDim();
 
     // calculate points to be deducted for tiles in floor line (as per official azul rules)

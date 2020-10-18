@@ -1,0 +1,25 @@
+RLLBRRYRBBLYBYRRUULLLYBLUYULYUBYBYBBRYRRRYYYRUYRBUULLLRYUUBLBBUBURBBLULULYLRURLBRYYULUBUBYBRRYLUYLRU
+11
+22
+turn 1 L 6
+turn 2 R 6
+turn 3 B 6
+turn 4 R 6
+turn 5 U 6
+turn 0 L 6
+turn 0 Y 6
+turn 0 B 6
+turn 0 R 6
+turn 1 L 6
+turn 2 U 6
+turn 3 Y 6
+turn 4 B 6
+turn 5 R 6
+turn 0 Y 6
+turn 0 B 6
+turn 0 L 6
+turn 0 U 6
+turn 1 Y 6
+turn 2 U 6
+turn 3 B 6
+turn 4 R 6

@@ -1,0 +1,30 @@
+
+
+Factories:
+0: F 
+1: Y Y B B 
+2: B B L L 
+3: L U U U 
+4: U R L L 
+5: R R R R 
+
+
+Score for player A: 29
+Mosaic for A:
+1:         . || B Y R U L
+2:       . . || L B Y . U
+3:     . . . || U . B . .
+4:   . . . . || . . L . Y
+5: . . B B B || . R U . .
+broken: 
+
+
+Score for CPU : 62
+Mosaic for CPU:
+1:         . || B Y R U L
+2:       . . || L B Y R U
+3:     . . R || U L B Y .
+4:   . L L L || R . . B .
+5: . . U U U || Y R . . .
+broken: 
+

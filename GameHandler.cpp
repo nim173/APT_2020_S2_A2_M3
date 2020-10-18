@@ -16,8 +16,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-GameHandler::GameHandler()
-{
+GameHandler::GameHandler() {
     // initialize file handler
     this->fileHandler = new GameFileHandler();
 
@@ -29,8 +28,7 @@ GameHandler::GameHandler()
 
     // initialize defaultMosaic
     defaultMosaicGrid = new Tile *[MOSAIC_DIM];
-    for (int i = 0; i != MOSAIC_DIM; ++i)
-    {
+    for (int i = 0; i != MOSAIC_DIM; ++i) {
         defaultMosaicGrid[i] = new Tile[MOSAIC_DIM];
     }
     fileHandler->loadMosaic(DEFAULT_MOSAIC_FILE, defaultMosaicGrid);
@@ -86,6 +84,7 @@ void GameHandler::playNewGame(bool fixedSeed, int seed, bool advancedMode, bool 
                 }
             } // add 20 extra tiles of 'O' for the advanced mode
             shuffleTilebag(fixedSeed, seed);
+            // write to file occurs after shuffle
             fileHandler->writeInitialBag(tilebag->toString());
             currentGame = new Game(tilebag, boxLid);
 
@@ -110,8 +109,6 @@ void GameHandler::playGame(int startingRound, int startingPlayer, bool advancedM
         cout << endl
              << "== START OF ROUND " << std::to_string(i+1) << " ==" << endl;
         while (!currentGame->roundOver() && notEOF) {
-            cout << tilebag->toString() << endl;
-            cout << boxLid->toString() << endl;
             cout << endl << "TURN FOR ";
             if (!players[j % NO_OF_PLAYERS]->isCpu()) {
                 cout << "PLAYER: " << players[j % NO_OF_PLAYERS]->getName() << endl;
@@ -179,8 +176,7 @@ void GameHandler::playGame(int startingRound, int startingPlayer, bool advancedM
         }
     }
 
-    if (notEOF)
-    {
+    if (notEOF) {
         cout << endl
              << "====   GAME OVER  ====" << endl;
         printGameResults();
@@ -227,7 +223,7 @@ void GameHandler::loadGame(string fileName, bool testing) {
                         loop = true;
                     } else {
                         cout << endl << "Invalid turn format at: " << endl
-                        << i+1 << ": " << turns->at(i);
+                        << i+1 << ": " << turns->at(i) << endl;
                     }
                 } else {
                     cout << endl << "Invalid turn with respect to game context at: " << endl
@@ -321,8 +317,7 @@ void GameHandler::playTurn(int playerNo, int factoryNo, Tile tile, int storageRo
 }
 
 bool GameHandler::getPlayerTurn(std::stringstream *stream, int *factoryNo, Tile *tile, 
-    int *storageRow, bool newGame, bool advancedMode, bool AImode)
-{
+    int *storageRow, bool newGame, bool advancedMode, bool AImode) {
     string validTiles = VALID_TURN_TILES;
     string maxStorageRowValue = "";
     if (!advancedMode) {
@@ -596,13 +591,10 @@ void GameHandler::printPlayerPoints(string message) {
     }
 }
 
-int GameHandler::resetGameBoard()
-{
+int GameHandler::resetGameBoard() {
     int result = -1;
-    for (int i = 0; i < NO_OF_PLAYERS; ++i)
-    {
-        if (players[i]->resetFloorline(boxLid))
-        {
+    for (int i = 0; i < NO_OF_PLAYERS; ++i) {
+        if (players[i]->resetFloorline(boxLid)) {
             result = i;
         }
     }
@@ -666,7 +658,7 @@ void GameHandler::shuffleTilebag(bool fixedSeed, int seed) {
 }
 
 void GameHandler::getAIturn(int *factoryNo, Tile *tile, int *storageRow) {
-    // obtaining all valid turns
+    // obtaining all valid turns (brute force)
     vector<AI_Turn> *moves = new vector<AI_Turn>;
     int chosenIndex = 0;
     vector<AI_Turn> *movesToFloorLine = new vector<AI_Turn>;
@@ -701,8 +693,6 @@ void GameHandler::getAIturn(int *factoryNo, Tile *tile, int *storageRow) {
             } // if there are specified tiles in the factory
         }
     }
-    cout << "Moves : " << moves->size() << endl;
-    cout << "MovesF : " << movesToFloorLine->size() << endl;
 
     if (moves->size() == 0) {
         // only valid moves left are moves to floor line
@@ -711,30 +701,29 @@ void GameHandler::getAIturn(int *factoryNo, Tile *tile, int *storageRow) {
         for (unsigned int i = 0; i < movesToFloorLine->size(); ++i) {
             if (movesToFloorLine->at(i).getPoints() > movesToFloorLine->at(maxIndex).getPoints()) {
                 maxIndex = i;
-                cout << "max " << maxIndex << endl;
             }
         }
         *factoryNo = movesToFloorLine->at(maxIndex).getFactoryNo();
         *tile = movesToFloorLine->at(maxIndex).getTile();
         *storageRow = movesToFloorLine->at(maxIndex).getStorageRow();
     } else {
-        if (players[CPU_PLAYER_NO]->isStorageRowsEmpty()) {
-            // pick the move with the highest number of points with highest num of tiles and lowest excess tiles
-            int maxPointsIndex = 0;
-            for (unsigned int i = 0; i < moves->size(); ++i) {
-                if (moves->at(i).getPoints() > moves->at(maxPointsIndex).getPoints()) {
+        // pick the move with the highest number of points with highest num of tiles and lowest excess tiles
+        int maxPointsIndex = 0;
+        for (unsigned int i = 0; i < moves->size(); ++i) {
+            if (moves->at(i).getPoints() > moves->at(maxPointsIndex).getPoints()) {
+                maxPointsIndex = i;
+            } else if (moves->at(i).getPoints() == moves->at(maxPointsIndex).getPoints()) {
+                if (moves->at(i).getNumTiles() > moves->at(maxPointsIndex).getNumTiles()){
                     maxPointsIndex = i;
-                } else if (moves->at(i).getPoints() == moves->at(maxPointsIndex).getPoints()) {
-                    if (moves->at(i).getNumTiles() > moves->at(maxPointsIndex).getNumTiles()){
+                } else if (moves->at(i).getNumTiles() == moves->at(maxPointsIndex).getNumTiles()){
+                    if (moves->at(i).getExcessTiles() < moves->at(maxPointsIndex).getExcessTiles()){
                         maxPointsIndex = i;
-                    } else if (moves->at(i).getNumTiles() == moves->at(maxPointsIndex).getNumTiles()){
-                        if (moves->at(i).getExcessTiles() < moves->at(maxPointsIndex).getExcessTiles()){
-                            maxPointsIndex = i;
-                        }
                     }
                 }
             }
+        }
 
+        if (players[CPU_PLAYER_NO]->isStorageRowsEmpty()) {
             if (moves->at(maxPointsIndex).getPoints() == 0 && moves->at(maxPointsIndex).getExcessTiles() == 0) {
                 // if no points can be taken from the move, pick the maximum tiles with smallest fit
                 int diff = moves->at(maxPointsIndex).getStorageRow() - moves->at(maxPointsIndex).getNumTiles();
@@ -754,25 +743,6 @@ void GameHandler::getAIturn(int *factoryNo, Tile *tile, int *storageRow) {
             chosenIndex = maxPointsIndex;
         } // if no partially filled rows present 
         else {
-            // pick the move with the highest number of points with highest num of tiles and lowest excess tiles
-            int maxPointsIndex = 0;
-            for (unsigned int i = 0; i < moves->size(); ++i) {
-                if (moves->at(i).getPoints() > moves->at(maxPointsIndex).getPoints()) {
-                    maxPointsIndex = i;
-                } else if (moves->at(i).getPoints() == moves->at(maxPointsIndex).getPoints()) {
-                    if (moves->at(i).getNumTiles() > moves->at(maxPointsIndex).getNumTiles()){
-                        maxPointsIndex = i;
-                    } else if (moves->at(i).getNumTiles() == moves->at(maxPointsIndex).getNumTiles()){
-                        if (moves->at(i).getExcessTiles() < moves->at(maxPointsIndex).getExcessTiles()){
-                            maxPointsIndex = i;
-                        }
-                    }
-                }
-            }
-
-            cout << "Max: " << maxPointsIndex << endl;
-            cout << moves->at(maxPointsIndex).getPoints() << moves->at(maxPointsIndex).getFactoryNo() << moves->at(maxPointsIndex).getTile() << moves->at(maxPointsIndex).getStorageRow()<< moves->at(maxPointsIndex).getNumTiles()<<endl;
-
             // if points == 0, look for smallest fit
             // while giving priority for partially filled storage rows
             if (moves->at(maxPointsIndex).getPoints() == 0 && moves->at(maxPointsIndex).getExcessTiles() == 0) {
@@ -823,11 +793,10 @@ void GameHandler::getAIturn(int *factoryNo, Tile *tile, int *storageRow) {
                 *storageRow = movesToFloorLine->at(maxIndex).getStorageRow();
             }
         }
-
-        // delete turns
-        delete moves;
-        delete movesToFloorLine;
     }
 
     cout << "Turn for CPU: turn " << *factoryNo << " " << *tile << " " << *storageRow << endl; 
+    // delete turns
+    delete moves;
+    delete movesToFloorLine;
 }

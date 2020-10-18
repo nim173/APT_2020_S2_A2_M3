@@ -1,0 +1,18 @@
+#myformat
+AIMode=on
+UYBYBBLUYLRBLYRYBBRBYLBRYRLBRYURUYLRLLRUUURRUYBYULUULRYRYLRBLBYBUBBRLBRLRYYYRBRBUYULLULUUULULBUYRBLY
+A
+
+turn 1 Y 2
+turn 5 B 3
+turn 2 B 3
+turn 4 Y 2
+turn 3 Y 1
+turn 0 R 4
+turn 0 L 4
+turn 0 B 1
+turn 0 U 5
+turn 1 R 1
+turn 2 L 4
+turn 3 R 2
+turn 4 U 5
